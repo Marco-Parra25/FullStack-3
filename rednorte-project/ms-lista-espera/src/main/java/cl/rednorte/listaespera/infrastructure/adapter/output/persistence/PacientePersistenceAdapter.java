@@ -6,6 +6,7 @@ import cl.rednorte.listaespera.infrastructure.adapter.output.persistence.mapper.
 import cl.rednorte.listaespera.infrastructure.adapter.output.persistence.repository.JpaPacienteRepository;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -28,5 +29,12 @@ public class PacientePersistenceAdapter implements PacienteRepository {
         var entity = PacienteMapper.toEntity(paciente);
         var saved = jpaPacienteRepository.save(entity);
         return PacienteMapper.toDomain(saved);
+    }
+
+    @Override
+    public List<Paciente> findAll() {
+        return jpaPacienteRepository.findAll().stream()
+                .map(PacienteMapper::toDomain)
+                .toList();
     }
 }
