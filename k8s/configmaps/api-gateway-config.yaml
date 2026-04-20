@@ -1,0 +1,156 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-gateway-config
+  namespace: rednorte
+  labels:
+    app: ms-api-gateway
+    component: config
+data:
+  application.yml: |
+    server:
+      port: 8080
+
+    spring:
+      application:
+        name: ms-api-gateway
+      
+      cloud:
+        gateway:
+          routes:
+            # MS Lista de Espera
+            - id: ms-lista-espera
+              uri: http://ms-lista-espera:8081
+              predicates:
+                - Path=/api/lista-espera/**
+              filters:
+                - StripPrefix=2
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 10
+                    redis-rate-limiter.burstCapacity: 20
+                    key-resolver: "#{@userKeyResolver}"
+                - name: CircuitBreaker
+                  args:
+                    name: listaEsperaCircuitBreaker
+                    fallbackUri: forward:/fallback/lista-espera
+
+            # MS Reasignación
+            - id: ms-reasignacion
+              uri: http://ms-reasignacion:8082
+              predicates:
+                - Path=/api/reasignacion/**
+              filters:
+                - StripPrefix=2
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 10
+                    redis-rate-limiter.burstCapacity: 20
+                    key-resolver: "#{@userKeyResolver}"
+                - name: CircuitBreaker
+                  args:
+                    name: reasignacionCircuitBreaker
+                    fallbackUri: forward:/fallback/reasignacion
+
+            # MS Notificaciones
+            - id: ms-notificaciones
+              uri: http://ms-notificaciones:8083
+              predicates:
+                - Path=/api/notificaciones/**
+              filters:
+                - StripPrefix=2
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 15
+                    redis-rate-limiter.burstCapacity: 30
+                    key-resolver: "#{@userKeyResolver}"
+                - name: CircuitBreaker
+                  args:
+                    name: notificacionesCircuitBreaker
+                    fallbackUri: forward:/fallback/notificaciones
+
+            # MS Monitoreo
+            - id: ms-monitoreo
+              uri: http://ms-monitoreo:8084
+              predicates:
+                - Path=/api/monitoreo/**
+              filters:
+                - StripPrefix=2
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 5
+                    redis-rate-limiter.burstCapacity: 10
+                    key-resolver: "#{@userKeyResolver}"
+
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOriginPatterns: 
+                  - "http://localhost:*"
+                  - "https://rednorte.cl"
+                  - "https://*.rednorte.cl"
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - OPTIONS
+                allowedHeaders: "*"
+                allowCredentials: true
+                maxAge: 3600
+
+      security:
+        oauth2:
+          resourceserver:
+            jwt:
+              issuer-uri: http://keycloak:8080/realms/rednorte
+              jwk-set-uri: http://keycloak:8080/realms/rednorte/protocol/openid-connect/certs
+
+    resilience4j:
+      circuitbreaker:
+        instances:
+          listaEsperaCircuitBreaker:
+            registerHealthIndicator: true
+            slidingWindowSize: 10
+            minimumNumberOfCalls: 5
+            permittedNumberOfCallsInHalfOpenState: 3
+            automaticTransitionFromOpenToHalfOpenEnabled: true
+            waitDurationInOpenState: 5s
+            failureRateThreshold: 50
+          reasignacionCircuitBreaker:
+            registerHealthIndicator: true
+            slidingWindowSize: 10
+            minimumNumberOfCalls: 5
+            permittedNumberOfCallsInHalfOpenState: 3
+            automaticTransitionFromOpenToHalfOpenEnabled: true
+            waitDurationInOpenState: 5s
+            failureRateThreshold: 50
+          notificacionesCircuitBreaker:
+            registerHealthIndicator: true
+            slidingWindowSize: 10
+            minimumNumberOfCalls: 5
+            permittedNumberOfCallsInHalfOpenState: 3
+            automaticTransitionFromOpenToHalfOpenEnabled: true
+            waitDurationInOpenState: 5s
+            failureRateThreshold: 50
+
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: health,info,metrics,prometheus,circuitbreakers,ratelimiters
+      endpoint:
+        health:
+          show-details: always
+      metrics:
+        export:
+          prometheus:
+            enabled: true
+
+    logging:
+      level:
+        org.springframework.cloud.gateway: DEBUG
+        org.springframework.security: DEBUG
+        cl.rednorte: DEBUG
+      pattern:
+        console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{traceId:-},%X{spanId:-}] %logger{36} - %msg%n"
