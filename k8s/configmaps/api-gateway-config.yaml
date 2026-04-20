@@ -82,13 +82,58 @@ data:
                     redis-rate-limiter.burstCapacity: 10
                     key-resolver: "#{@userKeyResolver}"
 
+            # BFF Frontend - Portal de Pacientes
+            - id: bff-portal
+              uri: http://bff-frontend:3001
+              predicates:
+                - Path=/api/bff/portal/**
+              filters:
+                - StripPrefix=3
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 50
+                    redis-rate-limiter.burstCapacity: 100
+                    key-resolver: "#{@userKeyResolver}"
+                - name: CircuitBreaker
+                  args:
+                    name: bffPortalCircuitBreaker
+                    fallbackUri: forward:/fallback/bff-portal
+
+            # BFF Frontend - Panel Administrativo
+            - id: bff-admin
+              uri: http://bff-frontend:3001
+              predicates:
+                - Path=/api/bff/admin/**
+              filters:
+                - StripPrefix=3
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 30
+                    redis-rate-limiter.burstCapacity: 60
+                    key-resolver: "#{@userKeyResolver}"
+                - name: CircuitBreaker
+                  args:
+                    name: bffAdminCircuitBreaker
+                    fallbackUri: forward:/fallback/bff-admin
+
+            # BFF Health Check
+            - id: bff-health
+              uri: http://bff-frontend:3001
+              predicates:
+                - Path=/api/bff/health
+              filters:
+                - StripPrefix=3
+
           globalcors:
             cors-configurations:
               '[/**]':
                 allowedOriginPatterns: 
                   - "http://localhost:*"
+                  - "http://localhost:3000"    # Frontend development
+                  - "http://localhost:3001"    # BFF development
                   - "https://rednorte.cl"
                   - "https://*.rednorte.cl"
+                  - "https://bff.rednorte.cl"   # BFF production
                 allowedMethods:
                   - GET
                   - POST
@@ -133,6 +178,22 @@ data:
             automaticTransitionFromOpenToHalfOpenEnabled: true
             waitDurationInOpenState: 5s
             failureRateThreshold: 50
+          bffPortalCircuitBreaker:
+            registerHealthIndicator: true
+            slidingWindowSize: 10
+            minimumNumberOfCalls: 5
+            permittedNumberOfCallsInHalfOpenState: 3
+            automaticTransitionFromOpenToHalfOpenEnabled: true
+            waitDurationInOpenState: 5s
+            failureRateThreshold: 60
+          bffAdminCircuitBreaker:
+            registerHealthIndicator: true
+            slidingWindowSize: 10
+            minimumNumberOfCalls: 5
+            permittedNumberOfCallsInHalfOpenState: 3
+            automaticTransitionFromOpenToHalfOpenEnabled: true
+            waitDurationInOpenState: 5s
+            failureRateThreshold: 60
 
     management:
       endpoints:

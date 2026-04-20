@@ -29,6 +29,16 @@ public class FallbackController {
         return createFallbackResponse("ms-notificaciones", "Servicio de notificaciones temporalmente no disponible");
     }
 
+    @GetMapping("/bff-portal")
+    public Mono<Map<String, Object>> bffPortalFallback() {
+        return createFallbackResponse("bff-portal", "Portal de pacientes temporalmente no disponible");
+    }
+
+    @GetMapping("/bff-admin")
+    public Mono<Map<String, Object>> bffAdminFallback() {
+        return createFallbackResponse("bff-admin", "Panel administrativo temporalmente no disponible");
+    }
+
     private Mono<Map<String, Object>> createFallbackResponse(String service, String message) {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
