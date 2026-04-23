@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-lista-espera
+  labels:
+    app: ms-lista-espera
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-lista-espera
+  template:
+    metadata:
+      labels:
+        app: ms-lista-espera
+    spec:
+      containers:
+        - name: ms-lista-espera
+          image: ms-lista-espera:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8081
+          envFrom:
+            - configMapRef:
+                name: ms-lista-espera-config
+            - secretRef:
+                name: ms-lista-espera-secret
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8081
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8081
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
