@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="8f5bd7e3-679b-443a-8237-e5b4578b3895" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/fullstack 3.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/jarRepositories.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/MsReasignacionApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/application/usecase/ReasignarCupoUseCase.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/domain/event/CupoAsignadoEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/domain/event/CupoLiberadoEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/domain/model/Paciente.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/domain/model/Reasignacion.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/domain/port/out/EventoReasignacionPort.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/domain/port/out/PacientePort.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/infrastructure/adapter/in/kafka/CupoLiberadoConsumer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/infrastructure/adapter/out/api/ListaEsperaClientAdapter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/infrastructure/adapter/out/kafka/NotificacionPublisherAdapter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/infrastructure/config/AppConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/infrastructure/repository/ReasignacionRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/org/msreasignacion/MsReasignacionApplicationTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/org/msreasignacion/application/usecase/ReasignarCupoUseCaseTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/org/msreasignacion/domain/model/ReasignacionTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ms-reasignacion.rar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ms-reasignacion.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/MsReasignacionApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/application/usecase/ReasignarCupoUseCase.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/domain/event/CupoAsignadoEvent.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/domain/event/CupoLiberadoEvent.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/domain/model/Paciente.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/domain/model/Reasignacion.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/domain/port/out/EventoReasignacionPort.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/domain/port/out/PacientePort.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/infrastructure/adapter/in/kafka/CupoLiberadoConsumer.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/infrastructure/adapter/out/api/ListaEsperaClientAdapter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/infrastructure/adapter/out/kafka/NotificacionPublisherAdapter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/infrastructure/config/AppConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/infrastructure/repository/ReasignacionRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/MsReasignacionApplicationTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/application/usecase/ReasignarCupoUseCaseTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/domain/model/ReasignacionTest.java" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1
+}</component>
+  <component name="ProjectId" id="3CjdF8Owq0YDPr1y0I0Ieah1S02" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "JUnit.MsReasignacionApplicationTest.executor": "Run",
+    "JUnit.ReasignacionTest.executor": "Run",
+    "JUnit.ReasignarCupoUseCaseTest.executor": "Run",
+    "Maven.ms-reasignacion [clean].executor": "Run",
+    "Maven.ms-reasignacion [compile].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "feat-ms-reasignacion-hp",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/SSDD/Desktop/fullstack 3/ms-reasignacion",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2"
+  }
+}]]></component>
+  <component name="RunManager" selected="JUnit.MsReasignacionApplicationTest">
+    <configuration name="MsReasignacionApplicationTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="ms-reasignacion" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.msreasignacion.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="org.msreasignacion" />
+      <option name="MAIN_CLASS_NAME" value="org.msreasignacion.MsReasignacionApplicationTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ReasignacionTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="ms-reasignacion" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.msreasignacion.domain.model.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="org.msreasignacion.domain.model" />
+      <option name="MAIN_CLASS_NAME" value="org.msreasignacion.domain.model.ReasignacionTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ReasignarCupoUseCaseTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="ms-reasignacion" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.msreasignacion.application.usecase.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="org.msreasignacion.application.usecase" />
+      <option name="MAIN_CLASS_NAME" value="org.msreasignacion.application.usecase.ReasignarCupoUseCaseTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.MsReasignacionApplicationTest" />
+        <item itemvalue="JUnit.ReasignarCupoUseCaseTest" />
+        <item itemvalue="JUnit.ReasignacionTest" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.30387.90" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="8f5bd7e3-679b-443a-8237-e5b4578b3895" name="Changes" comment="" />
+      <created>1776902806383</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1776902806383</updated>
+    </task>
+    <servers />
+  </component>
+</project>
