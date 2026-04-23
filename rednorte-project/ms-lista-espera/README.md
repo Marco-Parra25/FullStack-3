@@ -72,18 +72,16 @@ mvn test
 
 La suite cubre dominio, controladores REST y persistencia JPA con H2.
 
-## Kubernetes
+## Requisitos para despliegue Kubernetes
 
-Los manifiestos base estan en `k8s/`.
+Esta rama no define manifiestos Kubernetes para no intervenir la rama de infraestructura global del equipo.
 
-```bash
-kubectl apply -f k8s/postgres-secret.example.yaml
-kubectl apply -f k8s/postgres-service.yaml
-kubectl apply -f k8s/postgres-statefulset.yaml
-kubectl apply -f k8s/configmap.yaml
-kubectl apply -f k8s/secret.example.yaml
-kubectl apply -f k8s/deployment.yaml
-kubectl apply -f k8s/service.yaml
-```
+Para desplegar este microservicio en Kubernetes, el responsable de infraestructura debe considerar:
 
-Antes de usar los archivos `*.example.yaml` en un entorno real, reemplaza los passwords por secretos gestionados de forma segura.
+- Imagen Docker generada desde este `Dockerfile`.
+- Puerto de aplicacion: `8081`.
+- Healthcheck general: `/actuator/health`.
+- Readiness probe sugerida: `/actuator/health/readiness`.
+- Liveness probe sugerida: `/actuator/health/liveness`.
+- Variables requeridas: `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`.
+- Base de datos PostgreSQL con esquema creado por Flyway.
