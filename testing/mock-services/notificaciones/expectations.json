@@ -1,0 +1,108 @@
+{
+  "expectations": [
+    {
+      "httpRequest": {
+        "method": "POST",
+        "path": "/api/v1/notificaciones/enviar",
+        "headers": {
+          "Content-Type": ["application/json"],
+          "Authorization": ["Bearer .*"]
+        }
+      },
+      "httpResponse": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Type": ["application/json"]
+        },
+        "body": {
+          "notificacionId": "not-123",
+          "pacienteId": "12345678-9",
+          "tipo": "SMS",
+          "mensaje": "Su cita ha sido reasignada a Neurología para hoy a las 14:00",
+          "destino": "+56912345678",
+          "estado": "ENVIADA",
+          "fechaEnvio": "2024-04-24T12:30:00Z"
+        }
+      },
+      "times": {
+        "remainingTimes": 10,
+        "unlimited": false
+      }
+    },
+    {
+      "httpRequest": {
+        "method": "GET",
+        "path": "/api/v1/notificaciones/historial",
+        "headers": {
+          "Authorization": ["Bearer .*"]
+        }
+      },
+      "httpResponse": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Type": ["application/json"]
+        },
+        "body": {
+          "content": [
+            {
+              "id": "not-001",
+              "pacienteId": "12345678-9",
+              "pacienteNombre": "Juan Pérez",
+              "tipo": "SMS",
+              "mensaje": "Su cita ha sido confirmada para hoy a las 15:00",
+              "destino": "+56912345678",
+              "estado": "ENVIADA",
+              "fechaEnvio": "2024-04-24T10:00:00Z"
+            },
+            {
+              "id": "not-002",
+              "pacienteId": "87654321-0",
+              "pacienteNombre": "María González",
+              "tipo": "EMAIL",
+              "mensaje": "Recordatorio de cita mañana a las 09:00",
+              "destino": "maria.gonzalez@email.com",
+              "estado": "ENVIADA",
+              "fechaEnvio": "2024-04-24T11:30:00Z"
+            }
+          ]
+        }
+      },
+      "times": {
+        "remainingTimes": 5,
+        "unlimited": false
+      }
+    },
+    {
+      "httpRequest": {
+        "method": "POST",
+        "path": "/api/v1/notificaciones/campania",
+        "headers": {
+          "Content-Type": ["application/json"],
+          "Authorization": ["Bearer .*"]
+        }
+      },
+      "httpResponse": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Type": ["application/json"]
+        },
+        "body": {
+          "campaniaId": "camp-001",
+          "nombre": "Recordatorio de citas",
+          "mensaje": "Recordatorio de cita programada",
+          "tipo": "SMS",
+          "pacientes": 50,
+          "enviados": 48,
+          "fallidos": 2,
+          "estado": "COMPLETADA",
+          "fechaInicio": "2024-04-24T09:00:00Z",
+          "fechaFin": "2024-04-24T09:15:00Z"
+        }
+      },
+      "times": {
+        "remainingTimes": 3,
+        "unlimited": false
+      }
+    }
+  ]
+}

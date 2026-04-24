@@ -1,0 +1,112 @@
+{
+  "expectations": [
+    {
+      "httpRequest": {
+        "method": "POST",
+        "path": "/api/v1/reasignar",
+        "headers": {
+          "Content-Type": ["application/json"],
+          "Authorization": ["Bearer .*"]
+        }
+      },
+      "httpResponse": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Type": ["application/json"]
+        },
+        "body": {
+          "reasignacionId": "reas-123",
+          "pacienteId": "12345678-9",
+          "especialidadOrigen": "Cardiología",
+          "especialidadDestino": "Neurología",
+          "motivo": "Disponibilidad inmediata",
+          "fechaReasignacion": "2024-04-24T12:30:00Z",
+          "medicoId": "med-456",
+          "estado": "COMPLETADA"
+        }
+      },
+      "times": {
+        "remainingTimes": 5,
+        "unlimited": false
+      }
+    },
+    {
+      "httpRequest": {
+        "method": "GET",
+        "path": "/api/v1/reasignaciones/pendientes",
+        "headers": {
+          "Authorization": ["Bearer .*"]
+        }
+      },
+      "httpResponse": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Type": ["application/json"]
+        },
+        "body": {
+          "content": [
+            {
+              "id": "reas-001",
+              "pacienteId": "12345678-9",
+              "pacienteNombre": "Juan Pérez",
+              "especialidadOrigen": "Cardiología",
+              "especialidadDestino": "Neurología",
+              "prioridad": "ALTA",
+              "fechaSolicitud": "2024-04-24T10:00:00Z",
+              "estado": "PENDIENTE"
+            }
+          ]
+        }
+      },
+      "times": {
+        "remainingTimes": 10,
+        "unlimited": false
+      }
+    },
+    {
+      "httpRequest": {
+        "method": "GET",
+        "path": "/api/v1/reasignaciones/historial",
+        "headers": {
+          "Authorization": ["Bearer .*"]
+        }
+      },
+      "httpResponse": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Type": ["application/json"]
+        },
+        "body": {
+          "content": [
+            {
+              "id": "reas-001",
+              "pacienteId": "12345678-9",
+              "pacienteNombre": "Juan Pérez",
+              "especialidadOrigen": "Cardiología",
+              "especialidadDestino": "Neurología",
+              "motivo": "Disponibilidad inmediata",
+              "fechaReasignacion": "2024-04-24T11:00:00Z",
+              "medicoId": "med-456",
+              "estado": "COMPLETADA"
+            },
+            {
+              "id": "reas-002",
+              "pacienteId": "87654321-0",
+              "pacienteNombre": "María González",
+              "especialidadOrigen": "Pediatría",
+              "especialidadDestino": "Cardiología",
+              "motivo": "Urgencia médica",
+              "fechaReasignacion": "2024-04-24T09:30:00Z",
+              "medicoId": "med-789",
+              "estado": "COMPLETADA"
+            }
+          ]
+        }
+      },
+      "times": {
+        "remainingTimes": 5,
+        "unlimited": false
+      }
+    }
+  ]
+}
