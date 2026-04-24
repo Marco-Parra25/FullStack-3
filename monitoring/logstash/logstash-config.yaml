@@ -24,7 +24,7 @@ data:
     pipeline.batch.delay: 50
     
     # Configuración de logging
-    log.level: INFO
+    log.level: info
     
     # Configuración de cola
     queue.type: persisted

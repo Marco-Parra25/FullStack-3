@@ -102,29 +102,6 @@ output {
   elasticsearch {
     hosts => ["elasticsearch:9200"]
     index => "rednorte-logs-%{+YYYY.MM.dd}"
-    template_name => "rednorte-logs"
-    template_pattern => "rednorte-logs-*"
-    template => {
-      "index_patterns" => ["rednorte-logs-*"],
-      "settings" => {
-        "number_of_shards" => 1,
-        "number_of_replicas" => 0,
-        "index.refresh_interval" => "5s"
-      },
-      "mappings" => {
-        "properties" => {
-          "@timestamp" => { "type" => "date" },
-          "service_name" => { "type" => "keyword" },
-          "environment" => { "type" => "keyword" },
-          "log_level" => { "type" => "keyword" },
-          "business_domain" => { "type" => "keyword" },
-          "alert_level" => { "type" => "keyword" },
-          "http_method" => { "type" => "keyword" },
-          "uri_path" => { "type" => "keyword" },
-          "log_message" => { "type" => "text" }
-        }
-      }
-    }
   }
   
   # Salida para debugging (opcional)
