@@ -1,0 +1,100 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "/etc/prometheus/rules/*.yml"
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 30s
+
+  # API Gateway (tu Gateway real)
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['api-gateway:8080']
+    scrape_interval: 15s
+    metrics_path: /actuator/prometheus
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'api-gateway'
+
+  # MS Lista Espera (de Marco)
+  - job_name: 'ms-lista-espera'
+    static_configs:
+      - targets: ['ms-lista-espera:8081']
+    scrape_interval: 15s
+    metrics_path: /actuator/prometheus
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'ms-lista-espera'
+
+  # MS Reasignación (de Héctor)
+  - job_name: 'ms-reasignacion'
+    static_configs:
+      - targets: ['ms-reasignacion:8082']
+    scrape_interval: 15s
+    metrics_path: /actuator/prometheus
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'ms-reasignacion'
+
+  # MS Notificaciones
+  - job_name: 'ms-notificaciones'
+    static_configs:
+      - targets: ['ms-notificaciones:8083']
+    scrape_interval: 15s
+    metrics_path: /actuator/prometheus
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'ms-notificaciones'
+
+  # BFF Frontend (de Dominique)
+  - job_name: 'bff-frontend'
+    static_configs:
+      - targets: ['bff-frontend:3001']
+    scrape_interval: 30s
+    metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'bff-frontend'
+
+  # Grafana (opcional)
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+    scrape_interval: 30s
+    metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'grafana'
+
+  # PostgreSQL (monitoring de bases de datos)
+  - job_name: 'postgres-lista-espera'
+    static_configs:
+      - targets: ['postgres-lista-espera:5432']
+    scrape_interval: 30s
+    metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'postgres-lista-espera'
+
+  - job_name: 'postgres-reasignacion'
+    static_configs:
+      - targets: ['postgres-reasignacion:5432']
+    scrape_interval: 30s
+    metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'postgres-reasignacion'

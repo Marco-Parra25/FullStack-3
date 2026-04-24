@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: logstash
+  namespace: rednorte
+  labels:
+    app: logstash
+    component: logging
+    service-type: internal
+  annotations:
+    prometheus.io/scrape: "false"
+    kubernetes.io/description: "Service interno para Logstash"
+
+spec:
+  type: ClusterIP
+  ports:
+  - name: beats
+    port: 5044
+    targetPort: 5044
+    protocol: TCP
+  - name: tcp
+    port: 5000
+    targetPort: 5000
+    protocol: TCP
+  - name: monitoring
+    port: 9600
+    targetPort: 9600
+    protocol: TCP
+
+  selector:
+    app: logstash
+
+---
+# Service externo para acceso desde fuera del cluster (LoadBalancer)
+apiVersion: v1
+kind: Service
+metadata:
+  name: logstash-external
+  namespace: rednorte
+  labels:
+    app: logstash
+    component: logging
+    service-type: external
+  annotations:
+    kubernetes.io/description: "Service externo para Logstash - acceso público"
+
+spec:
+  type: LoadBalancer
+  ports:
+  - name: beats
+    port: 5044
+    targetPort: 5044
+    protocol: TCP
+  - name: tcp
+    port: 5000
+    targetPort: 5000
+    protocol: TCP
+
+  selector:
+    app: logstash

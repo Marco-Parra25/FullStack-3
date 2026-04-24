@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kibana-config
+  namespace: rednorte
+  labels:
+    app: kibana
+    component: config
+  annotations:
+    description: "Configuración principal de Kibana para RedNorte"
+
+data:
+  kibana.yml: |
+    # Configuración principal de Kibana
+    
+    server.host: "0.0.0.0"
+    server.port: 5601
+    server.name: "kibana-rednorte"
+    
+    # Configuración de Elasticsearch
+    elasticsearch.hosts: [ "http://elasticsearch:9200" ]
+    elasticsearch.pingTimeout: 1500
+    elasticsearch.requestTimeout: 30000
+    elasticsearch.shuffleHosts: true
+    
+    # Configuración de seguridad
+    xpack.security.enabled: false
+    xpack.encryptedSavedObjects.encryptionKey: "something_at_least_32_characters_long"
+    
+    # Configuración de logging
+    logging.root.level: INFO
+    logging.appenders.file.type: file
+    logging.appenders.file.fileName: /var/log/kibana/kibana.log
+    logging.appenders.file.layout.type: json
+    
+    # Configuración de monitoreo
+    xpack.monitoring.enabled: false
+    xpack.monitoring.ui.container.elasticsearch.enabled: false
+    
+    # Configuración de i18n
+    i18n.locale: "es"

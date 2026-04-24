@@ -1,0 +1,125 @@
+version: '3.8'
+
+services:
+  # API Gateway (tu Spring Cloud Gateway real)
+  api-gateway:
+    build: ./ms-api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - REDIS_HOST=redis
+    depends_on:
+      - redis
+      - prometheus
+    networks:
+      - rednorte-network
+
+  # Redis para Rate Limiting
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - rednorte-network
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus-config-final.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - rednorte-network
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:10.2.0
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    volumes:
+      - ./monitoring/grafana/grafana-provisioning.yml:/etc/grafana/provisioning/datasources.yml
+    depends_on:
+      - prometheus
+    networks:
+      - rednorte-network
+
+  # MS Lista Espera (de Marco)
+  ms-lista-espera:
+    build: ../feature/Infraestructura-MS-ListaDeEspera/rednorte-project/ms-lista-espera
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - postgres-lista-espera
+    networks:
+      - rednorte-network
+
+  # PostgreSQL para MS Lista Espera
+  postgres-lista-espera:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=rednorte_lista_espera
+      - POSTGRES_USER=rednorte
+      - POSTGRES_PASSWORD=rednorte123
+    volumes:
+      - postgres-lista-espera-data:/var/lib/postgresql/data
+    networks:
+      - rednorte-network
+
+  # MS Reasignación (de Héctor)
+  ms-reasignacion:
+    build: ../feat-ms-reasignacion-hp/ms-reasignacion
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - postgres-reasignacion
+    networks:
+      - rednorte-network
+
+  # PostgreSQL para MS Reasignación
+  postgres-reasignacion:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=rednorte_reasignacion
+      - POSTGRES_USER=rednorte
+      - POSTGRES_PASSWORD=rednorte123
+    volumes:
+      - postgres-reasignacion-data:/var/lib/postgresql/data
+    networks:
+      - rednorte-network
+
+  # MS Notificaciones (pendiente)
+  ms-notificaciones:
+    build: ./ms-notificaciones
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - rednorte-network
+
+  # BFF Frontend (de Dominique)
+  bff-frontend:
+    build: ../feature/bff-frontend-dominique/bff
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - rednorte-network
+
+volumes:
+  postgres-lista-espera-data:
+  postgres-reasignacion-data:
+
+networks:
+  rednorte-network:
+    driver: bridge

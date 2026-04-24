@@ -1,0 +1,64 @@
+---
+# ServiceAccount para Logstash
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: logstash
+  namespace: rednorte
+  labels:
+    app: logstash
+    component: rbac
+  annotations:
+    description: "ServiceAccount para Logstash con permisos de logging"
+
+---
+# Role para Logstash (namespace scope)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: logstash
+  namespace: rednorte
+  labels:
+    app: logstash
+    component: rbac
+  annotations:
+    description: "Role con permisos para Logstash en namespace rednorte"
+
+rules:
+# Permisos para leer recursos de logging
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+
+# Permisos para leer deployments y replicasets
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets", "replicationcontrollers"]
+  verbs: ["get", "list", "watch"]
+
+# Permisos para leer HPA
+- apiGroups: ["autoscaling"]
+  resources: ["horizontalpodautoscalers"]
+  verbs: ["get", "list", "watch"]
+
+---
+# RoleBinding para Logstash
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: logstash
+  namespace: rednorte
+  labels:
+    app: logstash
+    component: rbac
+  annotations:
+    description: "Binding del Role de Logstash al ServiceAccount"
+
+subjects:
+- kind: ServiceAccount
+  name: logstash
+  namespace: rednorte
+
+roleRef:
+  kind: Role
+  name: logstash
+  apiGroup: rbac.authorization.k8s.io
