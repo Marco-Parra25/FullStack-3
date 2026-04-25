@@ -5,54 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8f5bd7e3-679b-443a-8237-e5b4578b3895" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/compiler.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/fullstack 3.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/jarRepositories.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/MsReasignacionApplication.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/application/usecase/ReasignarCupoUseCase.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/domain/event/CupoAsignadoEvent.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/domain/event/CupoLiberadoEvent.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/domain/model/Paciente.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/domain/model/Reasignacion.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/domain/port/out/EventoReasignacionPort.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/domain/port/out/PacientePort.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/infrastructure/adapter/in/kafka/CupoLiberadoConsumer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/infrastructure/adapter/out/api/ListaEsperaClientAdapter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/infrastructure/adapter/out/kafka/NotificacionPublisherAdapter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/infrastructure/config/AppConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/msreasignacion/infrastructure/repository/ReasignacionRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/org/msreasignacion/MsReasignacionApplicationTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/org/msreasignacion/application/usecase/ReasignarCupoUseCaseTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/org/msreasignacion/domain/model/ReasignacionTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ms-reasignacion.rar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ms-reasignacion.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/MsReasignacionApplication.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/application/usecase/ReasignarCupoUseCase.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/domain/event/CupoAsignadoEvent.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/domain/event/CupoLiberadoEvent.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/domain/model/Paciente.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/domain/model/Reasignacion.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/domain/port/out/EventoReasignacionPort.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/domain/port/out/PacientePort.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/infrastructure/adapter/in/kafka/CupoLiberadoConsumer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/infrastructure/adapter/out/api/ListaEsperaClientAdapter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/infrastructure/adapter/out/kafka/NotificacionPublisherAdapter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/infrastructure/config/AppConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/infrastructure/repository/ReasignacionRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/MsReasignacionApplicationTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/application/usecase/ReasignarCupoUseCaseTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/domain/model/ReasignacionTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -82,7 +35,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "feat-ms-reasignacion-hp",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/SSDD/Desktop/fullstack 3/ms-reasignacion",
+    "last_opened_file_path": "C:/Users/SSDD/Desktop/Nueva carpeta/FullStack-3/ms-reasignacion",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2"
@@ -137,8 +90,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="JUnit.MsReasignacionApplicationTest" />
-        <item itemvalue="JUnit.ReasignarCupoUseCaseTest" />
         <item itemvalue="JUnit.ReasignacionTest" />
+        <item itemvalue="JUnit.ReasignarCupoUseCaseTest" />
       </list>
     </recent_temporary>
   </component>
@@ -158,5 +111,18 @@
       <updated>1776902806383</updated>
     </task>
     <servers />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="dependencySupport" implementationName="java:org.springframework:spring-core" />
+    <option featureType="dependencySupport" implementationName="executable:docker" />
+    <option featureType="dependencySupport" implementationName="java:org.apache.kafka:kafka_2.13" />
+    <option featureType="dependencySupport" implementationName="java:jakarta.persistence:jakarta.persistence-api" />
+    <option featureType="dependencySupport" implementationName="java:org.flywaydb:flyway-core" />
+    <option featureType="dependencySupport" implementationName="executable:kubectl" />
+    <option featureType="dependencySupport" implementationName="java:org.springframework.data:spring-data-commons" />
+    <option featureType="dependencySupport" implementationName="java:org.springframework:spring-messaging" />
+    <option featureType="dependencySupport" implementationName="java:org.springframework.boot:spring-boot" />
+    <option featureType="dependencySupport" implementationName="java:org.springframework:spring-webmvc" />
+    <option featureType="dependencySupport" implementationName="java:org.projectlombok:lombok" />
   </component>
 </project>
