@@ -1,0 +1,7 @@
+/Users/Marco-Parra/Downloads/FullStack 3/ms-api-gateway/src/main/java/cl/rednorte/gateway/GatewayApplication.java
+/Users/Marco-Parra/Downloads/FullStack 3/ms-api-gateway/src/main/java/cl/rednorte/gateway/config/KeycloakJwtAuthenticationConverter.java
+/Users/Marco-Parra/Downloads/FullStack 3/ms-api-gateway/src/main/java/cl/rednorte/gateway/config/RateLimitConfig.java
+/Users/Marco-Parra/Downloads/FullStack 3/ms-api-gateway/src/main/java/cl/rednorte/gateway/config/SecurityConfig.java
+/Users/Marco-Parra/Downloads/FullStack 3/ms-api-gateway/src/main/java/cl/rednorte/gateway/controller/FallbackController.java
+/Users/Marco-Parra/Downloads/FullStack 3/ms-api-gateway/src/main/java/cl/rednorte/gateway/infrastructure/exception/PacienteAlreadyExistsException.java
+/Users/Marco-Parra/Downloads/FullStack 3/ms-api-gateway/src/main/java/cl/rednorte/gateway/infrastructure/exception/WaitlistItemNotFoundException.java
