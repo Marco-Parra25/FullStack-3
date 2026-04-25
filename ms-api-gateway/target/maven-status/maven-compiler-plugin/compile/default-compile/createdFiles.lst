@@ -1,7 +1,0 @@
-cl/rednorte/gateway/config/SecurityConfig.class
-cl/rednorte/listaespera/infrastructure/exception/PacienteAlreadyExistsException.class
-cl/rednorte/gateway/GatewayApplication.class
-cl/rednorte/gateway/controller/FallbackController.class
-cl/rednorte/listaespera/infrastructure/exception/WaitlistItemNotFoundException.class
-cl/rednorte/gateway/config/KeycloakJwtAuthenticationConverter.class
-cl/rednorte/gateway/config/RateLimitConfig.class
