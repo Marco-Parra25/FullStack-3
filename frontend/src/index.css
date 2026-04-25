@@ -1,0 +1,184 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f0f4f8;
+  color: #1a1a2e;
+}
+
+nav {
+  background-color: #0B1F3A;
+  padding: 1rem 2rem;
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+nav a {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+nav a:hover {
+  background-color: #0D9488;
+}
+
+.page {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0B1F3A;
+  margin-bottom: 0.3rem;
+}
+
+h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0B1F3A;
+  margin: 1.5rem 0 0.8rem;
+}
+
+.stat-badge {
+  display: inline-block;
+  background-color: #0D9488;
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.form-row input,
+.form-row select {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid #ccd6e0;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  color: #1a1a2e;
+}
+
+.form-row input:focus,
+.form-row select:focus {
+  outline: none;
+  border-color: #0D9488;
+}
+
+.btn-primary {
+  padding: 0.5rem 1.2rem;
+  background-color: #0D9488;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #0f7a70;
+}
+
+.btn-danger {
+  padding: 0.3rem 0.7rem;
+  background-color: #E24B4A;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-danger:hover {
+  background-color: #c03c3b;
+}
+
+.hint {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+thead {
+  background-color: #0B1F3A;
+  color: white;
+}
+
+thead th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+tbody tr {
+  border-bottom: 1px solid #e8edf2;
+}
+
+tbody tr:hover {
+  background-color: #f5f9fc;
+}
+
+tbody td {
+  padding: 0.7rem 1rem;
+  font-size: 14px;
+  color: #2d3748;
+}
+
+.badge-espera {
+  background-color: #FEF3C7;
+  color: #92400E;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.card {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  margin-bottom: 1rem;
+}
+
+.card p {
+  margin-bottom: 0.5rem;
+  font-size: 15px;
+}
+
+.card strong {
+  color: #0B1F3A;
+}
