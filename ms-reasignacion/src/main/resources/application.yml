@@ -1,0 +1,37 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: ms-reasignacion
+
+  # Conexión a la Base de Datos PostgreSQL
+  datasource:
+    url: jdbc:postgresql://localhost:5432/rednorte_db
+    username: postgres
+    password: postgres # Cambia esto si en tu docker-compose pusiste otra clave
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate # Flyway se encargará de crear las tablas, no Hibernate
+    show-sql: true
+
+  # Conexión a Kafka
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: reasignacion-grupo
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+  # Configuración de Flyway (Migraciones de BD)
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
