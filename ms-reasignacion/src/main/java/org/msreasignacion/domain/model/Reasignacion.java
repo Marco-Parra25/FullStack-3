@@ -2,10 +2,12 @@ package org.msreasignacion.domain.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
+@Table(name = "reasignaciones") // Es buena práctica definir el nombre de la tabla
 public class Reasignacion {
     @Id
     private UUID id;
@@ -33,4 +35,15 @@ public class Reasignacion {
     public LocalDateTime getFechaAsignacion() { return fechaAsignacion; }
     public String getEstado() { return estado; }
     public UUID getCupoOrigenId() { return cupoOrigenId; }
+
+    // Setters (Necesarios para que el Use Case actualice los estados)
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public void setFechaAsignacion(LocalDateTime fechaAsignacion) {
+        this.fechaAsignacion = fechaAsignacion;
+    }
+
+    // Opcional: Si usas Lombok, podrías borrar todo esto y usar @Data o @Getter @Setter
 }
