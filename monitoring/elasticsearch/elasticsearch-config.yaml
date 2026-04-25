@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elasticsearch-config
+  namespace: rednorte
+  labels:
+    app: elasticsearch
+    component: config
+  annotations:
+    description: "Configuración principal de Elasticsearch para RedNorte"
+
+data:
+  elasticsearch.yml: |
+    # Configuración principal de Elasticsearch
+    
+    cluster.name: "rednorte-logs"
+    node.name: "elasticsearch-node-1"
+    network.host: 0.0.0.0
+    http.port: 9200
+    discovery.type: single-node
+    
+    # Configuración de seguridad básica
+    xpack.security.enabled: false
+    xpack.security.enrollment.enabled: false
+    
+    # Configuración de memoria
+    bootstrap.memory_lock: false
+    
+    # Configuración de paths
+    path.data: /usr/share/elasticsearch/data
+    path.logs: /usr/share/elasticsearch/logs
+    
+    # Configuración de índices
+    action.auto_create_index: "+*"
+    
+    # Configuración de logging
+    logger.level: INFO
+    logger.org.elasticsearch.cluster.routing.allocation: WARN
+    
+    # Configuración de rendimiento
+    index.refresh_interval: "1s"
+    index.number_of_shards: 1
+    index.number_of_replicas: 0
+    
+    # Configuración de retención
+    indices.lifecycle.poll_interval: "1m"
+    
+    # Configuración de análisis
+    index.analyzer.max_token_count: 100000

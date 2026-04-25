@@ -1,0 +1,205 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-provisioning
+  namespace: rednorte
+  labels:
+    app: grafana
+    component: provisioning
+  annotations:
+    description: "Configuración de provisioning para datasources y dashboards"
+
+data:
+  datasources.yml: |
+    apiVersion: 1
+    
+    datasources:
+      # Prometheus - Principal datasource
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus:9090
+        isDefault: true
+        jsonData:
+          timeInterval: 15s
+          queryTimeout: 60s
+          httpMethod: POST
+        secureJsonData: {}
+        editable: true
+        uid: prometheus
+        
+      # Grafana Internal - Para métricas internas
+      - name: Grafana
+        type: prometheus
+        access: proxy
+        url: http://grafana:3000/api/prometheus/metrics
+        isDefault: false
+        jsonData:
+          timeInterval: 30s
+          queryTimeout: 30s
+        secureJsonData: {}
+        editable: true
+        uid: grafana-internal
+        
+      # Loki - Para logs (cuando se configure ELK)
+      - name: Loki
+        type: loki
+        access: proxy
+        url: http://loki:3100
+        isDefault: false
+        jsonData:
+          maxLines: 1000
+        secureJsonData: {}
+        editable: true
+        uid: loki
+
+  dashboards.yml: |
+    apiVersion: 1
+    
+    providers:
+      # Provider para dashboards del sistema RedNorte
+      - name: 'rednorte-dashboards'
+        orgId: 1
+        folder: 'RedNorte'
+        type: file
+        disableDeletion: false
+        updateIntervalSeconds: 10
+        allowUiUpdates: true
+        options:
+          path: /var/lib/grafana/dashboards/rednorte
+        
+      # Provider para dashboards de Kubernetes
+      - name: 'kubernetes-dashboards'
+        orgId: 1
+        folder: 'Kubernetes'
+        type: file
+        disableDeletion: false
+        updateIntervalSeconds: 10
+        allowUiUpdates: true
+        options:
+          path: /var/lib/grafana/dashboards/kubernetes
+        
+      # Provider para dashboards de infraestructura
+      - name: 'infrastructure-dashboards'
+        orgId: 1
+        folder: 'Infrastructure'
+        type: file
+        disableDeletion: false
+        updateIntervalSeconds: 10
+        allowUiUpdates: true
+        options:
+          path: /var/lib/grafana/dashboards/infrastructure
+
+  alerting.yml: |
+    apiVersion: 1
+    
+    contact_points:
+      # Email para alertas críticas
+      - name: email-critical
+        orgId: 1
+        type: email
+        settings:
+          addresses: admin@rednorte.cl,devops@rednorte.cl
+          subject: "[CRITICAL] RedNorte - {{ .GroupLabels.alertname }}"
+          body: |
+            {{ range .Alerts }}
+            Alerta: {{ .Annotations.summary }}
+            Descripción: {{ .Annotations.description }}
+            Severidad: {{ .Labels.severity }}
+            Servicio: {{ .Labels.service }}
+            Componente: {{ .Labels.component }}
+            Timestamp: {{ .StartsAt }}
+            {{ end }}
+        disableResolveMessage: false
+        
+      # Email para alertas de advertencia
+      - name: email-warning
+        orgId: 1
+        type: email
+        settings:
+          addresses: devops@rednorte.cl
+          subject: "[WARNING] RedNorte - {{ .GroupLabels.alertname }}"
+          body: |
+            {{ range .Alerts }}
+            Alerta: {{ .Annotations.summary }}
+            Descripción: {{ .Annotations.description }}
+            Severidad: {{ .Labels.severity }}
+            Servicio: {{ .Labels.service }}
+            Componente: {{ .Labels.component }}
+            Timestamp: {{ .StartsAt }}
+            {{ end }}
+        disableResolveMessage: false
+        
+      # Slack para alertas críticas
+      - name: slack-critical
+        orgId: 1
+        type: slack
+        settings:
+          url: https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK
+          channel: "#rednorte-alerts"
+          title: "RedNorte - {{ .GroupLabels.alertname }}"
+          text: |
+            {{ range .Alerts }}
+            *Alerta:* {{ .Annotations.summary }}
+            *Descripción:* {{ .Annotations.description }}
+            *Severidad:* {{ .Labels.severity }}
+            *Servicio:* {{ .Labels.service }}
+            *Componente:* {{ .Labels.component }}
+            *Timestamp:* {{ .StartsAt }}
+            {{ end }}
+        disableResolveMessage: false
+
+    notification_policies:
+      # Política para alertas críticas
+      - orgId: 1
+        name: critical-alerts
+        receiver: email-critical
+        group_by: ['alertname', 'service', 'component']
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 15m
+        matchers:
+          - severity = critical
+          
+      # Política para alertas de advertencia
+      - orgId: 1
+        name: warning-alerts
+        receiver: email-warning
+        group_by: ['alertname', 'service']
+        group_wait: 1m
+        group_interval: 10m
+        repeat_interval: 30m
+        matchers:
+          - severity = warning
+          
+      # Política por defecto
+      - orgId: 1
+        name: default
+        receiver: email-warning
+        group_by: ['alertname']
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 4h
+
+    mute_time_intervals:
+      # Silenciar alertas durante mantenimiento
+      - name: maintenance-window
+        orgId: 1
+        time_intervals:
+          - times:
+              - start_time: "02:00"
+                end_time: "04:00"
+            weekdays: ['sunday']
+            
+      # Silenciar alertas durante horario no laboral
+      - name: after-hours
+        orgId: 1
+        time_intervals:
+          - times:
+              - start_time: "19:00"
+                end_time: "08:00"
+            weekdays: ['monday:friday']
+          - times:
+              - start_time: "00:00"
+                end_time: "23:59"
+            weekdays: ['saturday', 'sunday']

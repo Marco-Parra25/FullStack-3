@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bff-frontend
+  namespace: rednorte
+  labels:
+    app: bff-frontend
+    component: backend
+    service-type: internal
+  annotations:
+    kubernetes.io/description: "Service interno para BFF Frontend"
+
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 3001
+    targetPort: 3001
+    protocol: TCP
+
+  selector:
+    app: bff-frontend

@@ -1,0 +1,186 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-rules
+  namespace: rednorte
+  labels:
+    app: prometheus
+    component: rules
+  annotations:
+    description: "Reglas de alerting para Prometheus - Sistema RedNorte"
+
+data:
+  rednorte-alerts.yml: |
+    groups:
+    - name: rednorte-system
+      rules:
+      # Alertas de disponibilidad de servicios
+      - alert: ServicioDown
+        expr: up{job=~"api-gateway|ms-lista-espera|ms-reasignacion|ms-notificaciones|ms-monitoreo|bff-frontend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: "{{ $labels.job }}"
+          component: "{{ $labels.instance }}"
+        annotations:
+          summary: "Servicio {{ $labels.job }} está caído"
+          description: "El servicio {{ $labels.job }} en {{ $labels.instance }} ha estado caído por más de 1 minuto."
+
+      # Alertas de alta CPU
+      - alert: AltaCPU
+        expr: rate(container_cpu_usage_seconds_total[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: "{{ $labels.pod }}"
+        annotations:
+          summary: "Alto uso de CPU en pod {{ $labels.pod }}"
+          description: "El pod {{ $labels.pod }} tiene un uso de CPU del {{ $value }}% por más de 5 minutos."
+
+      # Alertas de alta memoria
+      - alert: AltaMemoria
+        expr: (container_memory_usage_bytes / container_spec_memory_limit_bytes) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          component: "{{ $labels.pod }}"
+        annotations:
+          summary: "Alto uso de memoria en pod {{ $labels.pod }}"
+          description: "El pod {{ $labels.pod }} tiene un uso de memoria del {{ $value }}% por más de 5 minutos."
+
+      # Alertas de disco lleno
+      - alert: DiscoLleno
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 10
+        for: 2m
+        labels:
+          severity: critical
+          component: "{{ $labels.instance }}"
+        annotations:
+          summary: "Disco casi lleno en {{ $labels.instance }}"
+          description: "El filesystem {{ $labels.mountpoint }} en {{ $labels.instance }} tiene menos del 10% de espacio disponible."
+
+      # Alertas de reinicios frecuentes
+      - alert: ReiniciosFrecuentes
+        expr: increase(kube_pod_container_status_restarts_total[15m]) > 2
+        for: 0m
+        labels:
+          severity: warning
+          component: "{{ $labels.pod }}"
+        annotations:
+          summary: "Reinicios frecuentes en pod {{ $labels.pod }}"
+          description: "El pod {{ $labels.pod }} se ha reiniciado {{ $value }} veces en los últimos 15 minutos."
+
+      # Alertas de Circuit Breaker abierto
+      - alert: CircuitBreakerAbierto
+        expr: resilience4j_circuitbreaker_state{state="OPEN"} == 1
+        for: 2m
+        labels:
+          severity: warning
+          component: "{{ $labels.name }}"
+        annotations:
+          summary: "Circuit Breaker abierto para {{ $labels.name }}"
+          description: "El Circuit Breaker {{ $labels.name }} está en estado OPEN por más de 2 minutos."
+
+    - name: rednorte-business
+      rules:
+      # Alertas de lista de espera
+      - alert: ListaEsperaCritica
+        expr: rednorte_lista_espera_total > 50000
+        for: 5m
+        labels:
+          severity: critical
+          business_impact: high
+        annotations:
+          summary: "Lista de espera crítica"
+          description: "La lista de espera tiene {{ $value }} pacientes, superando el umbral crítico de 50,000."
+
+      - alert: TiempoEsperaElevado
+        expr: rednorte_tiempo_promedio_espera_horas > 12
+        for: 10m
+        labels:
+          severity: warning
+          business_impact: medium
+        annotations:
+          summary: "Tiempo de espera elevado"
+          description: "El tiempo promedio de espera es de {{ $value }} horas, superando el umbral de 12 horas."
+
+      # Alertas de cancelaciones
+      - alert: TasaCancelacionesAlta
+        expr: rate(rednorte_citas_canceladas_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          business_impact: medium
+        annotations:
+          summary: "Tasa de cancelaciones alta"
+          description: "La tasa de cancelaciones es del {{ $value | humanizePercentage }}, superando el umbral del 10%."
+
+    - name: rednorte-performance
+      rules:
+      # Alertas de latencia HTTP
+      - alert: AltaLatenciaHTTP
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 3m
+        labels:
+          severity: warning
+          component: "{{ $labels.job }}"
+        annotations:
+          summary: "Alta latencia HTTP en {{ $labels.job }}"
+          description: "El percentil 95 de latencia HTTP es de {{ $value }}s en {{ $labels.job }}, superando el umbral de 2s."
+
+      # Alertas de tasa de errores HTTP
+      - alert: TasaErroresHTTPAlta
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+          component: "{{ $labels.job }}"
+        annotations:
+          summary: "Alta tasa de errores HTTP en {{ $labels.job }}"
+          description: "La tasa de errores HTTP 5xx en {{ $labels.job }} es del {{ $value | humanizePercentage }}, superando el umbral del 5%."
+
+      # Alertas de throughput bajo
+      - alert: ThroughputBajo
+        expr: rate(http_requests_total[5m]) < 1
+        for: 10m
+        labels:
+          severity: warning
+          component: "{{ $labels.job }}"
+        annotations:
+          summary: "Throughput bajo en {{ $labels.job }}"
+          description: "El throughput de {{ $labels.job }} es de {{ $value }} req/s, inferior al umbral mínimo de 1 req/s."
+
+    - name: rednorte-kubernetes
+      rules:
+      # Alertas de pods no ready
+      - alert: PodsNoReady
+        expr: kube_pod_status_ready{condition="true"} == 0
+        for: 5m
+        labels:
+          severity: warning
+          component: "{{ $labels.pod }}"
+        annotations:
+          summary: "Pod {{ $labels.pod }} no está ready"
+          description: "El pod {{ $labels.pod }} en namespace {{ $labels.namespace }} no está en estado ready por más de 5 minutos."
+
+      # Alertas de HPA en máximo
+      - alert: HPAMaximo
+        expr: kube_hpa_status_current_replicas == kube_hpa_status_max_replicas
+        for: 10m
+        labels:
+          severity: warning
+          component: "{{ $labels.hpa }}"
+        annotations:
+          summary: "HPA {{ $labels.hpa }} en máximo de réplicas"
+          description: "El HPA {{ $labels.hpa }} ha alcanzado el máximo de {{ $value }} réplicas por más de 10 minutos."
+
+      # Alertas de Pending Pods
+      - alert: PodsPending
+        expr: kube_pod_status_phase{phase="Pending"} > 0
+        for: 5m
+        labels:
+          severity: warning
+          component: "{{ $labels.pod }}"
+        annotations:
+          summary: "Pods en estado Pending"
+          description: "Hay {{ $value }} pods en estado Pending por más de 5 minutos."

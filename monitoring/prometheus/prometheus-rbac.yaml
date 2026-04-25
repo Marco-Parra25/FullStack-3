@@ -1,0 +1,92 @@
+---
+# ServiceAccount para Prometheus
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: rednorte
+  labels:
+    app: prometheus
+    component: rbac
+  annotations:
+    description: "ServiceAccount para Prometheus con permisos de monitoreo"
+
+---
+# ClusterRole para Prometheus
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus
+    component: rbac
+  annotations:
+    description: "ClusterRole con permisos para monitorear todo el cluster"
+
+rules:
+# Permisos para obtener métricas de pods
+- apiGroups: [""]
+  resources: ["pods", "nodes", "nodes/metrics", "services", "endpoints"]
+  verbs: ["get", "list", "watch"]
+
+# Permisos para obtener métricas de configmaps y secrets
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get"]
+
+# Permisos para obtener métricas de deployments
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets", "replicationcontrollers"]
+  verbs: ["get", "list", "watch"]
+
+# Permisos para obtener métricas de HPA
+- apiGroups: ["autoscaling"]
+  resources: ["horizontalpodautoscalers"]
+  verbs: ["get", "list", "watch"]
+
+# Permisos para obtener métricas de batch jobs
+- apiGroups: ["batch"]
+  resources: ["jobs", "cronjobs"]
+  verbs: ["get", "list", "watch"]
+
+# Permisos para obtener métricas de networking
+- apiGroups: ["extensions", "networking.k8s.io"]
+  resources: ["ingresses", "networkpolicies"]
+  verbs: ["get", "list", "watch"]
+
+# Permisos para obtener métricas de storage
+- apiGroups: ["storage.k8s.io"]
+  resources: ["storageclasses", "persistentvolumes", "persistentvolumeclaims"]
+  verbs: ["get", "list", "watch"]
+
+# Permisos para obtener métricas de certificates
+- apiGroups: ["certificates.k8s.io"]
+  resources: ["certificates", "certificatesigningrequests"]
+  verbs: ["get", "list", "watch"]
+
+# Permisos para obtener métricas de custom resources
+- apiGroups: ["metrics.k8s.io"]
+  resources: ["podmetrics", "nodemetrics"]
+  verbs: ["get", "list"]
+
+---
+# ClusterRoleBinding para Prometheus
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus
+    component: rbac
+  annotations:
+    description: "Binding del ClusterRole de Prometheus al ServiceAccount"
+
+subjects:
+- kind: ServiceAccount
+  name: prometheus
+  namespace: rednorte
+
+roleRef:
+  kind: ClusterRole
+  name: prometheus
+  apiGroup: rbac.authorization.k8s.io

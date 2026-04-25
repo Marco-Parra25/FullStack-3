@@ -1,0 +1,124 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash-pipeline
+  namespace: rednorte
+  labels:
+    app: logstash
+    component: pipeline
+  annotations:
+    description: "Pipeline de Logstash para procesar logs de RedNorte"
+
+data:
+  logstash.conf: |
+    input {
+      beats {
+        port => 5044
+        host => "0.0.0.0"
+      }
+      
+      # Logs directamente desde microservicios (opcional)
+      tcp {
+        port => 5000
+        host => "0.0.0.0"
+        codec => json_lines
+      }
+    }
+
+    filter {
+      # Parsear timestamp
+      if [message] =~ /\d{4}-\d{2}-\d{2}/ {
+        grok {
+          match => { 
+            "message" => "%{TIMESTAMP_ISO8601:timestamp} \[%{LOGLEVEL:log_level}\] %{DATA:thread_name} %{DATA:logger_name} - %{GREEDYDATA:log_message}"
+          }
+        }
+      }
+      
+      # Agregar metadata del servicio
+      if [fields][service] {
+        mutate {
+          add_field => { "service_name" => "%{[fields][service]}" }
+        }
+      }
+      
+      if [fields][environment] {
+        mutate {
+          add_field => { "environment" => "%{[fields][environment]}" }
+        }
+      }
+      
+      # Parsear logs de Spring Boot
+      if [logger_name] =~ /cl\.rednorte/ {
+        mutate {
+          add_field => { "application" => "rednorte" }
+        }
+        
+        # Extraer información de negocio
+        if [log_message] =~ /paciente/ {
+          mutate {
+            add_field => { "business_domain" => "pacientes" }
+          }
+        }
+        
+        if [log_message] =~ /cita/ {
+          mutate {
+            add_field => { "business_domain" => "citas" }
+          }
+        }
+        
+        if [log_message] =~ /lista.*espera/ {
+          mutate {
+            add_field => { "business_domain" => "lista_espera" }
+          }
+        }
+      }
+      
+      # Parsear logs de errores
+      if [log_level] == "ERROR" {
+        mutate {
+          add_field => { "alert_level" => "high" }
+        }
+      } else if [log_level] == "WARN" {
+        mutate {
+          add_field => { "alert_level" => "medium" }
+        }
+      } else {
+        mutate {
+          add_field => { "alert_level" => "low" }
+        }
+      }
+      
+      # Parsear logs de HTTP
+      if [message] =~ /HTTP/ {
+        grok {
+          match => { 
+            "message" => "%{WORD:http_method} %{URIPATH:uri_path}(?:%{URIPARAM:uri_params})? HTTP/%{NUMBER:http_version}" 
+          }
+        }
+      }
+      
+      # Limpiar campos innecesarios
+      mutate {
+        remove_field => [ "host", "agent", "ecs", "input", "log" ]
+      }
+      
+      # Convertir timestamp si existe
+      if [timestamp] {
+        date {
+          match => [ "timestamp", "ISO8601" ]
+        }
+      }
+    }
+
+    output {
+      elasticsearch {
+        hosts => ["elasticsearch:9200"]
+        index => "rednorte-logs-%{+YYYY.MM.dd}"
+      }
+      
+      # Salida para debugging (opcional)
+      stdout {
+        codec => rubydebug
+      }
+    }

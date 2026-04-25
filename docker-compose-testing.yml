@@ -1,0 +1,127 @@
+version: '3.8'
+
+services:
+  # API Gateway
+  api-gateway:
+    build: ./ms-api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - REDIS_HOST=redis
+      - KEYCLOAK_URL=http://keycloak:8080/auth
+    depends_on:
+      - redis
+      - keycloak
+      - prometheus
+    networks:
+      - rednorte-network
+
+  # Redis para Rate Limiting
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - rednorte-network
+
+  # Keycloak para Autenticación
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0
+    ports:
+      - "8081:8080"
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin123
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin123
+    command:
+      - start-dev
+      - --import-realm
+    volumes:
+      - ./testing/keycloak/realm-rednorte.json:/opt/keycloak/data/import/realm-rednorte.json
+    networks:
+      - rednorte-network
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=1d'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./monitoring/prometheus/prometheus-config-local.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    networks:
+      - rednorte-network
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:10.2.0
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel,grafana-worldmap-panel
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/grafana-provisioning.yml:/etc/grafana/provisioning/datasources.yml
+    depends_on:
+      - prometheus
+    networks:
+      - rednorte-network
+
+  # Mock Service 1 - MS Lista Espera
+  mock-lista-espera:
+    image: mockserver/mockserver:latest
+    ports:
+      - "8082:1080"
+    environment:
+      - MOCKSERVER_PROPERTY_FILE=/config/mockserver.properties
+    volumes:
+      - ./testing/mock-services/lista-espera:/config
+    networks:
+      - rednorte-network
+
+  # Mock Service 2 - MS Reasignación
+  mock-reasignacion:
+    image: mockserver/mockserver:latest
+    ports:
+      - "8083:1080"
+    environment:
+      - MOCKSERVER_PROPERTY_FILE=/config/mockserver.properties
+    volumes:
+      - ./testing/mock-services/reasignacion:/config
+    networks:
+      - rednorte-network
+
+  # Mock Service 3 - MS Notificaciones
+  mock-notificaciones:
+    image: mockserver/mockserver:latest
+    ports:
+      - "8084:1080"
+    environment:
+      - MOCKSERVER_PROPERTY_FILE=/config/mockserver.properties
+    volumes:
+      - ./testing/mock-services/notificaciones:/config
+    networks:
+      - rednorte-network
+
+volumes:
+  redis-data:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  rednorte-network:
+    driver: bridge

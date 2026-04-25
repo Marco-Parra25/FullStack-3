@@ -1,0 +1,138 @@
+{
+  "expectations": [
+    {
+      "httpRequest": {
+        "method": "GET",
+        "path": "/api/v1/waitlist",
+        "headers": {
+          "Authorization": ["Bearer .*"]
+        }
+      },
+      "httpResponse": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Type": ["application/json"]
+        },
+        "body": {
+          "content": [
+            {
+              "id": 1,
+              "pacienteId": "12345678-9",
+              "pacienteNombre": "Juan Pérez",
+              "especialidad": "Cardiología",
+              "prioridad": "ALTA",
+              "fechaRegistro": "2024-04-24T10:00:00Z",
+              "estado": "ESPERA",
+              "tiempoEspera": 120
+            },
+            {
+              "id": 2,
+              "pacienteId": "87654321-0",
+              "pacienteNombre": "María González",
+              "especialidad": "Neurología",
+              "prioridad": "MEDIA",
+              "fechaRegistro": "2024-04-24T11:30:00Z",
+              "estado": "ESPERA",
+              "tiempoEspera": 90
+            }
+          ]
+        }
+      },
+      "times": {
+        "remainingTimes": 5,
+        "unlimited": false
+      }
+    },
+    {
+      "httpRequest": {
+        "method": "POST",
+        "path": "/api/v1/waitlist",
+        "headers": {
+          "Content-Type": ["application/json"],
+          "Authorization": ["Bearer .*"]
+        }
+      },
+      "httpResponse": {
+        "statusCode": 201,
+        "headers": {
+          "Content-Type": ["application/json"]
+        },
+        "body": {
+          "id": 3,
+          "pacienteId": "11223344-5",
+          "pacienteNombre": "Carlos Rodríguez",
+          "especialidad": "Pediatría",
+          "prioridad": "BAJA",
+          "fechaRegistro": "2024-04-24T12:00:00Z",
+          "estado": "ESPERA",
+          "tiempoEspera": 60
+        }
+      },
+      "times": {
+        "remainingTimes": 3,
+        "unlimited": false
+      }
+    },
+    {
+      "httpRequest": {
+        "method": "GET",
+        "path": "/api/v1/waitlist/count",
+        "headers": {
+          "Authorization": ["Bearer .*"]
+        }
+      },
+      "httpResponse": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Type": ["application/json"]
+        },
+        "body": {
+          "total": 150,
+          "enEspera": 120,
+          "atendidos": 30
+        }
+      },
+      "times": {
+        "remainingTimes": 10,
+        "unlimited": false
+      }
+    },
+    {
+      "httpRequest": {
+        "method": "GET",
+        "path": "/api/v1/pacientes",
+        "headers": {
+          "Authorization": ["Bearer .*"]
+        }
+      },
+      "httpResponse": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Type": ["application/json"]
+        },
+        "body": {
+          "content": [
+            {
+              "id": "12345678-9",
+              "nombre": "Juan Pérez",
+              "rut": "12.345.678-9",
+              "email": "juan.perez@email.com",
+              "telefono": "+56912345678"
+            },
+            {
+              "id": "87654321-0",
+              "nombre": "María González",
+              "rut": "87.654.321-0",
+              "email": "maria.gonzalez@email.com",
+              "telefono": "+56987654321"
+            }
+          ]
+        }
+      },
+      "times": {
+        "remainingTimes": 5,
+        "unlimited": false
+      }
+    }
+  ]
+}

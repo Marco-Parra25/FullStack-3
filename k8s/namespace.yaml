@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rednorte
+  labels:
+    name: rednorte
+    environment: production
+    project: rednorte-health-system
+  annotations:
+    description: "Namespace para el sistema de salud RedNorte"

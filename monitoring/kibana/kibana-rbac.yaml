@@ -1,0 +1,64 @@
+---
+# ServiceAccount para Kibana
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kibana
+  namespace: rednorte
+  labels:
+    app: kibana
+    component: rbac
+  annotations:
+    description: "ServiceAccount para Kibana con permisos de logging"
+
+---
+# Role para Kibana (namespace scope)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kibana
+  namespace: rednorte
+  labels:
+    app: kibana
+    component: rbac
+  annotations:
+    description: "Role con permisos para Kibana en namespace rednorte"
+
+rules:
+# Permisos para leer recursos de logging
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+
+# Permisos para leer deployments y replicasets
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets", "replicationcontrollers"]
+  verbs: ["get", "list", "watch"]
+
+# Permisos para leer HPA
+- apiGroups: ["autoscaling"]
+  resources: ["horizontalpodautoscalers"]
+  verbs: ["get", "list", "watch"]
+
+---
+# RoleBinding para Kibana
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kibana
+  namespace: rednorte
+  labels:
+    app: kibana
+    component: rbac
+  annotations:
+    description: "Binding del Role de Kibana al ServiceAccount"
+
+subjects:
+- kind: ServiceAccount
+  name: kibana
+  namespace: rednorte
+
+roleRef:
+  kind: Role
+  name: kibana
+  apiGroup: rbac.authorization.k8s.io

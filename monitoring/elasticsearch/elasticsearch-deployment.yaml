@@ -1,0 +1,141 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elasticsearch
+  namespace: rednorte
+  labels:
+    app: elasticsearch
+    component: logging
+    version: v8.11.0
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    kubernetes.io/description: "Elasticsearch - Motor de búsqueda y almacenamiento de logs para RedNorte"
+
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+    rollingUpdate: null
+
+  selector:
+    matchLabels:
+      app: elasticsearch
+
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+        component: logging
+        version: v8.11.0
+      annotations:
+        prometheus.io/scrape: "false"
+
+    spec:
+      serviceAccountName: elasticsearch
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+
+      initContainers:
+      # Aumentar límites de memoria virtual
+      - name: increase-vm-max-map
+        image: busybox:1.35
+        command: ["sysctl", "-w", "vm.max_map_count=262144"]
+        securityContext:
+          privileged: true
+
+      containers:
+      - name: elasticsearch
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9200
+          name: http
+          protocol: TCP
+        - containerPort: 9300
+          name: transport
+          protocol: TCP
+
+        env:
+        - name: cluster.name
+          value: "rednorte-logs"
+        - name: node.name
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: discovery.type
+          value: "single-node"
+        - name: ES_JAVA_OPTS
+          value: "-Xms1g -Xmx1g -Dlog4j2.logger.elasticsearch=INFO"
+        - name: xpack.security.enabled
+          value: "false"
+        - name: xpack.security.enrollment.enabled
+          value: "false"
+        - name: bootstrap.memory_lock
+          value: "false"
+
+        # Volume mounts
+        volumeMounts:
+        - name: config-volume
+          mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+          subPath: elasticsearch.yml
+          readOnly: true
+        - name: data-volume
+          mountPath: /usr/share/elasticsearch/data
+        - name: logs-volume
+          mountPath: /usr/share/elasticsearch/logs
+
+        # Resources
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+
+        # Health checks
+        livenessProbe:
+          httpGet:
+            path: /_cluster/health
+            port: 9200
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+
+        readinessProbe:
+          httpGet:
+            path: /_cluster/health?wait_for_status=yellow
+            port: 9200
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+      # Volumes
+      volumes:
+      - name: config-volume
+        configMap:
+          name: elasticsearch-config
+          items:
+          - key: elasticsearch.yml
+            path: elasticsearch.yml
+
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: elasticsearch-pvc
+
+      - name: logs-volume
+        emptyDir: {}
+
+      # Node selector
+      nodeSelector:
+        kubernetes.io/os: linux
+
+      # Restart policy
+      restartPolicy: Always
+
+      # Termination grace period
+      terminationGracePeriodSeconds: 120

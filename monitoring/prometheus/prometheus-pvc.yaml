@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-pvc
+  namespace: rednorte
+  labels:
+    app: prometheus
+    component: storage
+  annotations:
+    description: "PVC para almacenamiento de datos de Prometheus"
+
+spec:
+  accessModes:
+    - ReadWriteOnce
+  
+  storageClassName: fast-ssd  # Ajustar según el cloud provider
+  
+  resources:
+    requests:
+      storage: 50Gi  # Ajustar según necesidades de retención
+
+  # Para producción, considerar:
+  # - volumeMode: Filesystem
+  # - selector para PVs específicos

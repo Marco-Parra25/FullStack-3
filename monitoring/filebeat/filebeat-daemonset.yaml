@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: filebeat
+  namespace: rednorte
+  labels:
+    app: filebeat
+    component: logging
+    version: v8.11.0
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    kubernetes.io/description: "Filebeat - Recolector de logs para RedNorte"
+
+spec:
+  selector:
+    matchLabels:
+      app: filebeat
+
+  template:
+    metadata:
+      labels:
+        app: filebeat
+        component: logging
+        version: v8.11.0
+      annotations:
+        prometheus.io/scrape: "false"
+
+    spec:
+      serviceAccountName: filebeat
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+
+      terminationGracePeriodSeconds: 30
+
+      containers:
+      - name: filebeat
+        image: docker.elastic.co/beats/filebeat:8.11.0
+        imagePullPolicy: IfNotPresent
+
+        args:
+        - -c
+        - /etc/filebeat.yml
+        - -e
+        - --strict.perms=false
+
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: ELASTICSEARCH_HOST
+          value: elasticsearch
+        - name: ELASTICSEARCH_PORT
+          value: "9200"
+        - name: LOGSTASH_HOST
+          value: logstash
+        - name: LOGSTASH_PORT
+          value: "5044"
+
+        securityContext:
+          runAsUser: 0
+          privileged: false
+
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+
+        volumeMounts:
+        - name: config
+          mountPath: /etc/filebeat.yml
+          readOnly: true
+          subPath: filebeat.yml
+
+        - name: data
+          mountPath: /usr/share/filebeat/data
+
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+
+        - name: varlog
+          mountPath: /var/log
+          readOnly: true
+
+        - name: varlogcontainers
+          mountPath: /var/log/containers
+          readOnly: true
+
+      volumes:
+      - name: config
+        configMap:
+          defaultMode: 0600
+          name: filebeat-config
+
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+
+      - name: varlog
+        hostPath:
+          path: /var/log
+
+      - name: varlogcontainers
+        hostPath:
+          path: /var/log/containers
+
+      - name: data
+        hostPath:
+          path: /var/lib/filebeat-data
+          type: DirectoryOrCreate
+
+      # Node selector
+      nodeSelector:
+        kubernetes.io/os: linux
+
+      # Tolerations
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule

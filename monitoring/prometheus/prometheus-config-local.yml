@@ -1,0 +1,66 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "/etc/prometheus/rules/*.yml"
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 30s
+
+  # API Gateway
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['api-gateway:8080']
+    scrape_interval: 15s
+    metrics_path: /actuator/prometheus
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'api-gateway'
+
+  # Mock Services (simulando microservicios)
+  - job_name: 'mock-lista-espera'
+    static_configs:
+      - targets: ['mock-lista-espera:1080']
+    scrape_interval: 15s
+    metrics_path: /mockserver/prometheus
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'mock-lista-espera'
+
+  - job_name: 'mock-reasignacion'
+    static_configs:
+      - targets: ['mock-reasignacion:1080']
+    scrape_interval: 15s
+    metrics_path: /mockserver/prometheus
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'mock-reasignacion'
+
+  - job_name: 'mock-notificaciones'
+    static_configs:
+      - targets: ['mock-notificaciones:1080']
+    scrape_interval: 15s
+    metrics_path: /mockserver/prometheus
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'mock-notificaciones'
+
+  # Grafana (opcional, para monitorear Grafana mismo)
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+    scrape_interval: 30s
+    metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'grafana'
