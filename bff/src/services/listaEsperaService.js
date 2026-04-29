@@ -1,34 +1,38 @@
 const axios = require('axios')
 
-const MS_LISTA_URL = process.env.MS_LISTA_URL || 'http://localhost:8081'
+const GATEWAY_URL = process.env.GATEWAY_URL || 'http://localhost:8080'
+const BASE_URL = `${GATEWAY_URL}/api/lista-espera/api/v1`
 
 module.exports = {
   // Lista de espera
   listarTodos: () =>
-    axios.get(`${MS_LISTA_URL}/api/v1/waitlist`),
+    axios.get(`${BASE_URL}/waitlist`),
 
   obtenerPorId: (id) =>
-    axios.get(`${MS_LISTA_URL}/api/v1/waitlist/${id}`),
+    axios.get(`${BASE_URL}/waitlist/${id}`),
 
   listarPorPrioridad: () =>
-    axios.get(`${MS_LISTA_URL}/api/v1/waitlist/prioridad`),
+    axios.get(`${BASE_URL}/waitlist/prioridad`),
+
+  listarPorEspecialidad: (especialidad) =>
+    axios.get(`${BASE_URL}/waitlist/especialidad/${especialidad}`),
 
   registrar: (data) =>
-    axios.post(`${MS_LISTA_URL}/api/v1/waitlist`, data),
+    axios.post(`${BASE_URL}/waitlist`, data),
 
   cancelar: (id) =>
-    axios.patch(`${MS_LISTA_URL}/api/v1/waitlist/${id}/cancelar`),
+    axios.patch(`${BASE_URL}/waitlist/${id}/cancelar`),
 
   contarEnEspera: () =>
-    axios.get(`${MS_LISTA_URL}/api/v1/waitlist/count`),
+    axios.get(`${BASE_URL}/waitlist/count`),
 
-  // Pacientes — NUEVOS
+  // Pacientes
   listarPacientes: () =>
-    axios.get(`${MS_LISTA_URL}/api/v1/pacientes`),
+    axios.get(`${BASE_URL}/pacientes`),
 
   crearPaciente: (data) =>
-    axios.post(`${MS_LISTA_URL}/api/v1/pacientes`, data),
+    axios.post(`${BASE_URL}/pacientes`, data),
 
   obtenerPacientePorId: (id) =>
-    axios.get(`${MS_LISTA_URL}/api/v1/pacientes/${id}`)
+    axios.get(`${BASE_URL}/pacientes/${id}`),
 }
