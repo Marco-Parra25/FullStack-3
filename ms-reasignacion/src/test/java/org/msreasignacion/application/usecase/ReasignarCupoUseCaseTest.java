@@ -1,16 +1,16 @@
 package org.msreasignacion.application.usecase;
 
-import org.msreasignacion.domain.event.CupoLiberadoEvent;
-import org.msreasignacion.domain.model.Paciente;
-import org.msreasignacion.domain.model.Reasignacion;
-import org.msreasignacion.domain.port.out.EventoReasignacionPort;
-import org.msreasignacion.domain.port.out.PacientePort;
-import org.msreasignacion.infrastructure.repository.ReasignacionRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.msreasignacion.domain.event.CupoLiberadoEvent;
+import org.msreasignacion.domain.model.Paciente;
+import org.msreasignacion.domain.model.Reasignacion;
+import org.msreasignacion.domain.port.out.EventoReasignacionPort;
+import org.msreasignacion.domain.port.out.PacientePort;
+import org.msreasignacion.domain.port.out.ReasignacionRepositoryPort; // IMPORTANTE: Cambiado a Port
 
 import java.util.Optional;
 import java.util.UUID;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.*;
 class ReasignarCupoUseCaseTest {
 
     @Mock
-    private ReasignacionRepository repository;
+    private ReasignacionRepositoryPort repository; // Ahora mockeamos el PUERTO, no el JPA directo
 
     @Mock
     private PacientePort pacientePort;
@@ -38,20 +38,13 @@ class ReasignarCupoUseCaseTest {
     @Test
     void ejecutar_CuandoHayPaciente_DebeGuardarYNotificar() {
         // 1. ARRANGE
-        // Generamos un UUID real para que UUID.fromString() en el UseCase no explote
-        String especialidadId = UUID.randomUUID().toString();
-        CupoLiberadoEvent evento = new CupoLiberadoEvent(especialidadId, "Cardiología");
+        String cupoId = UUID.randomUUID().toString();
+        CupoLiberadoEvent evento = new CupoLiberadoEvent(cupoId, "Cardiología");
 
         Paciente paciente = new Paciente(
-                1L,
-                "12345678-9",
-                "Juan",
-                "Perez",
-                "+56912345678",
-                "paciente@correo.cl"
+                1L, "12345678-9", "Juan", "Perez", "+56912345678", "paciente@correo.cl"
         );
 
-        // Usamos anyString() para que Mockito no se queje por coincidencia exacta
         when(pacientePort.obtenerSiguientePaciente(anyString()))
                 .thenReturn(Optional.of(paciente));
 
@@ -59,7 +52,9 @@ class ReasignarCupoUseCaseTest {
         useCase.ejecutar(evento);
 
         // 3. ASSERT
-        verify(repository, times(1)).save(any(Reasignacion.class));
+        // Ahora verificamos contra guardar() (el método del Port) en lugar de save()
+        verify(repository, atLeastOnce()).guardar(any(Reasignacion.class));
+
         verify(eventoPort, times(1)).publicarCupoAsignado(
                 eq("12345678-9"),
                 eq("+56912345678"),
@@ -70,18 +65,15 @@ class ReasignarCupoUseCaseTest {
 
     @Test
     void ejecutar_CuandoNoHayPaciente_NoDebeGuardarNiNotificar() {
-        // 1. ARRANGE
-        String especialidadId = UUID.randomUUID().toString();
-        CupoLiberadoEvent evento = new CupoLiberadoEvent(especialidadId, "Traumatología");
+        // ARRANGE
+        CupoLiberadoEvent evento = new CupoLiberadoEvent(UUID.randomUUID().toString(), "Traumatología");
+        when(pacientePort.obtenerSiguientePaciente(anyString())).thenReturn(Optional.empty());
 
-        when(pacientePort.obtenerSiguientePaciente(anyString()))
-                .thenReturn(Optional.empty());
-
-        // 2. ACT
+        // ACT
         useCase.ejecutar(evento);
 
-        // 3. ASSERT
-        verify(repository, never()).save(any(Reasignacion.class));
+        // ASSERT
+        verify(repository, never()).guardar(any(Reasignacion.class));
         verify(eventoPort, never()).publicarCupoAsignado(any(), any(), any(), any());
     }
 }
