@@ -9,9 +9,11 @@ app.use(express.json())
 // Rutas
 const portalRoutes = require('./routes/portal')
 const adminRoutes = require('./routes/admin')
+const notificacionesRoutes = require('./routes/notificaciones')
 
 app.use('/portal', portalRoutes)
 app.use('/admin', adminRoutes)
+app.use('/notificaciones', notificacionesRoutes)
 
 app.get('/health', (req, res) => {
   res.json({ status: 'BFF funcionando' })
