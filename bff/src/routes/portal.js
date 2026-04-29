@@ -1,5 +1,6 @@
 const router = require('express').Router()
 const service = require('../services/listaEsperaService')
+const { handleGatewayError } = require('../utils/gatewayError')
 
 router.get('/estado/:id', async (req, res) => {
   try {
@@ -10,7 +11,7 @@ router.get('/estado/:id', async (req, res) => {
       totalEnEspera: count.data.enEspera
     })
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener estado' })
+    handleGatewayError(res, error, 'Error al obtener estado')
   }
 })
 
@@ -22,7 +23,7 @@ router.get('/especialidad/:especialidad', async (req, res) => {
     )
     res.json(filtrada)
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener lista' })
+    handleGatewayError(res, error, 'Error al obtener lista')
   }
 })
 
@@ -38,7 +39,7 @@ router.get('/rut/:rut', async (req, res) => {
       totalEnEspera: count.data.enEspera
     })
   } catch (error) {
-    res.status(500).json({ error: 'Error al buscar' })
+    handleGatewayError(res, error, 'Error al buscar')
   }
 })
 
