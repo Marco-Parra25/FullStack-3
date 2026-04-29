@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8f5bd7e3-679b-443a-8237-e5b4578b3895" name="Changes" comment="">
+    <list default="true" id="8d2d39c0-cee1-473e-884f-c65006edb990" name="Changes" comment="Se crea Dockerfile para microservicio ms reasignacion">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -15,48 +15,41 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 1
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "hectorpena95"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Marco-Parra25/FullStack-3.git&quot;,
+    &quot;accountId&quot;: &quot;e53eb78a-b816-4421-b109-03f1b0fcf9b1&quot;
+  }
 }</component>
-  <component name="ProjectId" id="3CjdF8Owq0YDPr1y0I0Ieah1S02" />
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 7
+}]]></component>
+  <component name="ProjectId" id="3CpTyiFlauzlukdMaCZRP3w1x3D" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "JUnit.MsReasignacionApplicationTest.executor": "Run",
     "JUnit.ReasignacionTest.executor": "Run",
     "JUnit.ReasignarCupoUseCaseTest.executor": "Run",
-    "Maven.ms-reasignacion [clean].executor": "Run",
-    "Maven.ms-reasignacion [compile].executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "feat-ms-reasignacion-hp",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/SSDD/Desktop/Nueva carpeta/FullStack-3/ms-reasignacion",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2"
+    "last_opened_file_path": "C:/Users/SSDD/Desktop/Nueva carpeta/FullStack-3/ms-reasignacion"
   }
 }]]></component>
-  <component name="RunManager" selected="JUnit.MsReasignacionApplicationTest">
-    <configuration name="MsReasignacionApplicationTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="ms-reasignacion" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="org.msreasignacion.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="org.msreasignacion" />
-      <option name="MAIN_CLASS_NAME" value="org.msreasignacion.MsReasignacionApplicationTest" />
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunManager" selected="JUnit.ReasignacionTest">
     <configuration name="ReasignacionTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="ms-reasignacion" />
       <extension name="coverage">
@@ -89,7 +82,6 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.MsReasignacionApplicationTest" />
         <item itemvalue="JUnit.ReasignacionTest" />
         <item itemvalue="JUnit.ReasignarCupoUseCaseTest" />
       </list>
@@ -104,25 +96,25 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="8f5bd7e3-679b-443a-8237-e5b4578b3895" name="Changes" comment="" />
-      <created>1776902806383</created>
+      <changelist id="8d2d39c0-cee1-473e-884f-c65006edb990" name="Changes" comment="" />
+      <created>1777081767615</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1776902806383</updated>
+      <updated>1777081767615</updated>
     </task>
+    <task id="LOCAL-00001" summary="Se crea Dockerfile para microservicio ms reasignacion">
+      <option name="closed" value="true" />
+      <created>1777081924798</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1777081924798</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
-  <component name="UnknownFeatures">
-    <option featureType="dependencySupport" implementationName="java:org.springframework:spring-core" />
-    <option featureType="dependencySupport" implementationName="executable:docker" />
-    <option featureType="dependencySupport" implementationName="java:org.apache.kafka:kafka_2.13" />
-    <option featureType="dependencySupport" implementationName="java:jakarta.persistence:jakarta.persistence-api" />
-    <option featureType="dependencySupport" implementationName="java:org.flywaydb:flyway-core" />
-    <option featureType="dependencySupport" implementationName="executable:kubectl" />
-    <option featureType="dependencySupport" implementationName="java:org.springframework.data:spring-data-commons" />
-    <option featureType="dependencySupport" implementationName="java:org.springframework:spring-messaging" />
-    <option featureType="dependencySupport" implementationName="java:org.springframework.boot:spring-boot" />
-    <option featureType="dependencySupport" implementationName="java:org.springframework:spring-webmvc" />
-    <option featureType="dependencySupport" implementationName="java:org.projectlombok:lombok" />
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Se crea Dockerfile para microservicio ms reasignacion" />
+    <option name="LAST_COMMIT_MESSAGE" value="Se crea Dockerfile para microservicio ms reasignacion" />
   </component>
 </project>

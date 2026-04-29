@@ -1,9 +1,13 @@
-package org.msreasignacion.domain.model;
+package org.msreasignacion.infrastructure.adapter.out.db;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class Reasignacion {
+@Entity
+@Table(name = "reasignaciones")
+public class ReasignacionEntity {
+    @Id
     private UUID id;
     private String pacienteRut;
     private String especialidad;
@@ -11,9 +15,10 @@ public class Reasignacion {
     private String estado;
     private UUID cupoOrigenId;
 
-    public Reasignacion() {}
+    // JPA requiere un constructor vacío
+    public ReasignacionEntity() {}
 
-    public Reasignacion(UUID id, String pacienteRut, String especialidad, LocalDateTime fechaAsignacion, String estado, UUID cupoOrigenId) {
+    public ReasignacionEntity(UUID id, String pacienteRut, String especialidad, LocalDateTime fechaAsignacion, String estado, UUID cupoOrigenId) {
         this.id = id;
         this.pacienteRut = pacienteRut;
         this.especialidad = especialidad;
@@ -22,15 +27,11 @@ public class Reasignacion {
         this.cupoOrigenId = cupoOrigenId;
     }
 
-    // Getters
+    // Getters (Para que el Adapter pueda leer de aquí)
     public UUID getId() { return id; }
     public String getPacienteRut() { return pacienteRut; }
     public String getEspecialidad() { return especialidad; }
     public LocalDateTime getFechaAsignacion() { return fechaAsignacion; }
     public String getEstado() { return estado; }
     public UUID getCupoOrigenId() { return cupoOrigenId; }
-
-    // Setters
-    public void setEstado(String estado) { this.estado = estado; }
-    public void setFechaAsignacion(LocalDateTime fechaAsignacion) { this.fechaAsignacion = fechaAsignacion; }
 }
