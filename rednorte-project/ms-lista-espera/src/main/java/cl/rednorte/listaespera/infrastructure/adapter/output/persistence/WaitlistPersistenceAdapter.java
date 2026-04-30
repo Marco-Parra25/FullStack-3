@@ -56,13 +56,15 @@ public class WaitlistPersistenceAdapter implements WaitlistRepository {
 
     @Override
     public Optional<WaitlistItem> findById(Long id) {
-        return jpaWaitlistRepository.findById(id)
+        // Usa JPQL con proyección al DTO de persistencia (un solo join en la query)
+        return jpaWaitlistRepository.findDtoById(id)
                 .map(WaitlistItemMapper::toDomain);
     }
 
     @Override
     public List<WaitlistItem> findAll() {
-        return jpaWaitlistRepository.findAll().stream()
+        // Usa JPQL con proyección al DTO de persistencia
+        return jpaWaitlistRepository.findAllDto().stream()
                 .map(WaitlistItemMapper::toDomain)
                 .toList();
     }
@@ -70,7 +72,7 @@ public class WaitlistPersistenceAdapter implements WaitlistRepository {
     @Override
     public List<WaitlistItem> findByEspecialidad(String especialidad) {
         return jpaWaitlistRepository
-                .findByEspecialidadAndEstadoOrderByPrioridadAscFechaIngresoAsc(especialidad, EstadoEspera.EN_ESPERA)
+                .findDtoByEspecialidadAndEstado(especialidad, EstadoEspera.EN_ESPERA)
                 .stream()
                 .map(WaitlistItemMapper::toDomain)
                 .toList();
@@ -79,7 +81,7 @@ public class WaitlistPersistenceAdapter implements WaitlistRepository {
     @Override
     public List<WaitlistItem> findAllOrderByPrioridad() {
         return jpaWaitlistRepository
-                .findByEstadoOrderByPrioridadAscFechaIngresoAsc(EstadoEspera.EN_ESPERA)
+                .findDtoByEstadoOrderByPrioridad(EstadoEspera.EN_ESPERA)
                 .stream()
                 .map(WaitlistItemMapper::toDomain)
                 .toList();

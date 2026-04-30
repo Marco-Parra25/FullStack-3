@@ -48,11 +48,10 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!-- Resilience4j Circuit Breaker -->
+        <!-- Resilience4j: solo el core necesario para Spring Cloud Gateway CircuitBreaker -->
         <dependency>
-            <groupId>io.github.resilience4j</groupId>
-            <artifactId>resilience4j-spring-boot3</artifactId>
-            <version>${resilience4j.version}</version>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
         </dependency>
         <!-- Spring Boot Configuration Processor -->
         <dependency>

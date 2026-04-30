@@ -20,7 +20,8 @@ public class PacientePersistenceAdapter implements PacienteRepository {
 
     @Override
     public Optional<Paciente> findById(Long id) {
-        return jpaPacienteRepository.findById(id)
+        // Usa la consulta JPQL que proyecta directamente al DTO de persistencia
+        return jpaPacienteRepository.findDtoById(id)
                 .map(PacienteMapper::toDomain);
     }
 
@@ -31,6 +32,7 @@ public class PacientePersistenceAdapter implements PacienteRepository {
 
     @Override
     public Paciente save(Paciente paciente) {
+        // Para escritura se usa la entidad JPA directamente
         var entity = PacienteMapper.toEntity(paciente);
         var saved = jpaPacienteRepository.save(entity);
         return PacienteMapper.toDomain(saved);
@@ -38,7 +40,8 @@ public class PacientePersistenceAdapter implements PacienteRepository {
 
     @Override
     public List<Paciente> findAll() {
-        return jpaPacienteRepository.findAll().stream()
+        // Usa la consulta JPQL que proyecta directamente al DTO de persistencia
+        return jpaPacienteRepository.findAllDto().stream()
                 .map(PacienteMapper::toDomain)
                 .toList();
     }

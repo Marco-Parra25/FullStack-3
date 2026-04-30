@@ -1,7 +1,7 @@
 const axios = require('axios')
 
-const GATEWAY_URL = process.env.GATEWAY_URL || 'http://localhost:8080'
-const BASE_URL = `${GATEWAY_URL}/api/lista-espera/api/v1`
+const GATEWAY_URL = process.env.API_GATEWAY_URL || process.env.GATEWAY_URL || 'http://ms-api-gateway:8080'
+const BASE_URL = `${GATEWAY_URL}/api/v1`
 
 module.exports = {
   // Lista de espera
