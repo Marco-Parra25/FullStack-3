@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
-
-const BFF_URL = 'http://localhost:3001'
+import axiosInstance from '../services/axiosInstance'
 
 interface Paciente {
   id: number
@@ -19,7 +17,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    axios.get(`${BFF_URL}/admin/lista`)
+    axiosInstance.get('/admin/lista')
       .then(res => {
         setPacientes(res.data.pacientes)
         setTotalEnEspera(res.data.totalEnEspera)
@@ -28,7 +26,7 @@ export default function Dashboard() {
       .catch(() => setLoading(false))
 
     const intervalo = setInterval(() => {
-      axios.get(`${BFF_URL}/admin/lista`)
+      axiosInstance.get('/admin/lista')
         .then(res => {
           setPacientes(res.data.pacientes)
           setTotalEnEspera(res.data.totalEnEspera)

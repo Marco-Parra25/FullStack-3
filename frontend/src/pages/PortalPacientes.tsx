@@ -1,7 +1,5 @@
 import { useState } from 'react'
-import axios from 'axios'
-
-const BFF_URL = 'http://localhost:3001'
+import axiosInstance from '../services/axiosInstance'
 
 interface Ficha {
   id: number
@@ -25,7 +23,7 @@ export default function PortalPacientes() {
     if (!busquedaId) return
     setLoading(true)
     setBuscado(false)
-    axios.get(`${BFF_URL}/portal/rut/${busquedaId}`)
+    axiosInstance.get(`/portal/rut/${busquedaId}`)
       .then(res => {
         setFicha(res.data.ficha)
         setTotalEnEspera(res.data.totalEnEspera)

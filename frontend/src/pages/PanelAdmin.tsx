@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
-
-const BFF_URL = 'http://localhost:3001'
+import axiosInstance from '../services/axiosInstance'
 
 interface Paciente {
   id: number
@@ -34,7 +32,7 @@ export default function PanelAdmin() {
   })
 
   const cargarLista = () => {
-    axios.get(`${BFF_URL}/admin/lista`)
+    axiosInstance.get('/admin/lista')
       .then(res => {
         setPacientes(res.data.pacientes)
         setTotalEnEspera(res.data.totalEnEspera)
@@ -44,7 +42,7 @@ export default function PanelAdmin() {
   }
 
   const cargarPacientes = () => {
-    axios.get(`${BFF_URL}/admin/pacientes`)
+    axiosInstance.get('/admin/pacientes')
       .then(res => setPacientesDisponibles(res.data))
       .catch(() => console.error('Error al cargar pacientes'))
   }
@@ -65,7 +63,7 @@ useEffect(() => {
       alert('Completa todos los campos')
       return
     }
-    axios.post(`${BFF_URL}/admin/registrar`, {
+    axiosInstance.post('/admin/registrar', {
       pacienteId: parseInt(form.pacienteId),
       tipoAtencion: form.tipoAtencion,
       especialidad: form.especialidad
@@ -86,7 +84,7 @@ useEffect(() => {
 
   const cancelar = (id: number) => {
     if (!confirm(`¿Cancelar cita del paciente ${id}?`)) return
-    axios.patch(`${BFF_URL}/admin/cancelar/${id}`)
+    axiosInstance.patch(`/admin/cancelar/${id}`)
       .then(() => {
         alert('Cita cancelada')
         cargarLista()

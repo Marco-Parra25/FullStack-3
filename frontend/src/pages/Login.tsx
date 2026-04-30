@@ -22,6 +22,8 @@ export default function Login({ setRol }: Props) {
       u => u.usuario === usuario && u.password === password
     )
     if (user) {
+      const mockToken = btoa(JSON.stringify({ sub: user.usuario, rol: user.rol, nombre: user.nombre }))
+      sessionStorage.setItem('token', mockToken)
       setRol(user.rol)
       if (user.rol === 'admin') navigate('/admin')
       if (user.rol === 'medico') navigate('/dashboard')
