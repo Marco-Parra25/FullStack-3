@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_BFF_URL: string
+  readonly VITE_GRAFANA_URL: string
 }
 
 interface ImportMeta {

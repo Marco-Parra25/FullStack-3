@@ -165,6 +165,18 @@ export default function Dashboard() {
         </div>
 
       </div>
+
+      <div className="card" style={{ marginTop: '1.5rem' }}>
+        <h2>Dashboard Grafana</h2>
+        <iframe
+          src={import.meta.env.VITE_GRAFANA_URL || 'http://localhost:3000'}
+          width="100%"
+          height="600"
+          style={{ border: 'none', borderRadius: '6px', marginTop: '1rem' }}
+          title="Grafana Dashboard"
+        />
+      </div>
+
     </div>
   )
 }
