@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
-
-const BFF_URL = 'http://localhost:3001'
+import axiosInstance from '../services/axiosInstance'
 
 interface Paciente {
   id: number
@@ -26,7 +24,7 @@ export default function GestionPacientes() {
   })
 
   const cargarPacientes = () => {
-    axios.get(`${BFF_URL}/admin/pacientes`)
+    axiosInstance.get('/admin/pacientes')
       .then(res => {
         setPacientes(res.data)
         setLoading(false)
@@ -43,7 +41,7 @@ export default function GestionPacientes() {
       alert('RUT, nombre y apellido son obligatorios')
       return
     }
-    axios.post(`${BFF_URL}/admin/pacientes`, form)
+    axiosInstance.post('/admin/pacientes', form)
       .then(res => {
         alert(`Paciente ${res.data.nombre} creado con ID ${res.data.id}`)
         setForm({ rut: '', nombre: '', apellido: '', telefono: '', email: '' })
