@@ -111,6 +111,37 @@ class WaitlistServiceTest {
     }
 
     @Test
+    @DisplayName("Actualizar estado persiste el nuevo estado")
+    void actualizarEstado() {
+        WaitlistItem item = WaitlistItem.builder()
+                .id(1L)
+                .paciente(paciente)
+                .tipoAtencion(TipoAtencion.CONSULTA)
+                .especialidad("Cardiología")
+                .prioridad(3)
+                .estado(EstadoEspera.EN_ESPERA)
+                .fechaIngreso(LocalDate.now())
+                .build();
+
+        when(waitlistRepository.findById(1L)).thenReturn(Optional.of(item));
+        when(waitlistRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        WaitlistItem result = service.actualizarEstado(1L, EstadoEspera.ATENDIDO);
+
+        assertEquals(EstadoEspera.ATENDIDO, result.getEstado());
+        verify(waitlistRepository).save(item);
+    }
+
+    @Test
+    @DisplayName("Actualizar estado de item inexistente lanza excepción")
+    void actualizarEstadoInexistente() {
+        when(waitlistRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThrows(WaitlistItemNotFoundException.class,
+                () -> service.actualizarEstado(999L, EstadoEspera.ATENDIDO));
+    }
+
+    @Test
     @DisplayName("Listar por especialidad delega al repository")
     void listarPorEspecialidad() {
         WaitlistItem item = WaitlistItem.builder()

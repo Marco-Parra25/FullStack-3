@@ -2,6 +2,7 @@ package cl.rednorte.listaespera.infrastructure.adapter.input.rest;
 
 import cl.rednorte.listaespera.domain.model.WaitlistItem;
 import cl.rednorte.listaespera.domain.port.input.WaitlistUseCase;
+import cl.rednorte.listaespera.infrastructure.adapter.input.rest.dto.ActualizarEstadoRequest;
 import cl.rednorte.listaespera.infrastructure.adapter.input.rest.dto.RegistroRequest;
 import cl.rednorte.listaespera.infrastructure.adapter.input.rest.dto.WaitlistResponse;
 import jakarta.validation.Valid;
@@ -68,6 +69,14 @@ public class WaitlistController {
     public ResponseEntity<Void> cancelar(@PathVariable Long id) {
         waitlistUseCase.cancelar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/estado")
+    public ResponseEntity<WaitlistResponse> actualizarEstado(
+            @PathVariable Long id,
+            @Valid @RequestBody ActualizarEstadoRequest request) {
+        WaitlistItem item = waitlistUseCase.actualizarEstado(id, request.estado());
+        return ResponseEntity.ok(WaitlistResponse.from(item));
     }
 
     @GetMapping("/count")
