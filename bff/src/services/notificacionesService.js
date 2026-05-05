@@ -1,6 +1,6 @@
 const axios = require('axios')
 
-const GATEWAY_URL = process.env.GATEWAY_URL || 'http://localhost:8080'
+const GATEWAY_URL = process.env.API_GATEWAY_URL || process.env.GATEWAY_URL || 'http://localhost:8080'
 const BASE_URL = `${GATEWAY_URL}/api/notificaciones/api/v1`
 
 module.exports = {
