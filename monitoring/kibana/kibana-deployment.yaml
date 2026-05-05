@@ -1,0 +1,140 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  namespace: rednorte
+  labels:
+    app: kibana
+    component: logging
+    version: v8.11.0
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    kubernetes.io/description: "Kibana - Visualización de logs para RedNorte"
+
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+    rollingUpdate: null
+
+  selector:
+    matchLabels:
+      app: kibana
+
+  template:
+    metadata:
+      labels:
+        app: kibana
+        component: logging
+        version: v8.11.0
+      annotations:
+        prometheus.io/scrape: "false"
+
+    spec:
+      serviceAccountName: kibana
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+
+      initContainers:
+      # Esperar a que Elasticsearch esté listo
+      - name: wait-for-elasticsearch
+        image: busybox:1.35
+        command:
+        - sh
+        - -c
+        - |
+          echo "Waiting for Elasticsearch..."
+          until nc -z elasticsearch 9200; do
+            echo "Elasticsearch is unavailable - sleeping"
+            sleep 5
+          done
+          echo "Elasticsearch is up - starting Kibana"
+
+      containers:
+      - name: kibana
+        image: docker.elastic.co/kibana/kibana:8.11.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5601
+          name: http
+          protocol: TCP
+
+        env:
+        - name: ELASTICSEARCH_HOSTS
+          value: "http://elasticsearch:9200"
+        - name: SERVER_NAME
+          value: "kibana-rednorte"
+        - name: SERVER_HOST
+          value: "0.0.0.0"
+        - name: SERVER_PORT
+          value: "5601"
+        - name: XPACK_SECURITY_ENABLED
+          value: "false"
+        - name: I18N_LOCALE
+          value: "es"
+
+        # Volume mounts
+        volumeMounts:
+        - name: config-volume
+          mountPath: /usr/share/kibana/config/kibana.yml
+          subPath: kibana.yml
+          readOnly: true
+        - name: data-volume
+          mountPath: /usr/share/kibana/data
+        - name: logs-volume
+          mountPath: /var/log/kibana
+
+        # Resources
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+
+        # Health checks
+        livenessProbe:
+          httpGet:
+            path: /api/status
+            port: 5601
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+
+        readinessProbe:
+          httpGet:
+            path: /api/status
+            port: 5601
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+      # Volumes
+      volumes:
+      - name: config-volume
+        configMap:
+          name: kibana-config
+          items:
+          - key: kibana.yml
+            path: kibana.yml
+
+      - name: data-volume
+        emptyDir: {}
+
+      - name: logs-volume
+        emptyDir: {}
+
+      # Node selector
+      nodeSelector:
+        kubernetes.io/os: linux
+
+      # Restart policy
+      restartPolicy: Always
+
+      # Termination grace period
+      terminationGracePeriodSeconds: 120

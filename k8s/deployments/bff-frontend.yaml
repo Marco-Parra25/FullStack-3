@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bff-frontend
+  namespace: rednorte
+  labels:
+    app: bff-frontend
+    component: backend
+    version: v1.0.0
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    kubernetes.io/description: "BFF Frontend para el sistema de salud RedNorte"
+
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+
+  selector:
+    matchLabels:
+      app: bff-frontend
+
+  template:
+    metadata:
+      labels:
+        app: bff-frontend
+        component: backend
+        version: v1.0.0
+      annotations:
+        prometheus.io/scrape: "false"  # BFF no expone métricas de Prometheus
+
+    spec:
+      containers:
+      - name: bff-frontend
+        image: dxminique/bff-frontend:1.0.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3001
+          name: http
+          protocol: TCP
+
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: MS_LISTA_URL
+          value: "http://ms-lista-espera:8081"  # Conexión directa al MS (mantener compatibilidad)
+        - name: PORT
+          value: "3001"
+
+        # Health checks
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        # Resources
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+
+      # Node selector y tolerations para producción
+      nodeSelector:
+        kubernetes.io/os: linux
+
+      # Security context
+      securityContext:
+        runAsNonRoot: false  # Node.js apps usualmente corren como root
+        runAsUser: 0
+        fsGroup: 0
+
+      # Restart policy
+      restartPolicy: Always
+
+      # Termination grace period
+      terminationGracePeriodSeconds: 30

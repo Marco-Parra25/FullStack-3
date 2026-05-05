@@ -1,0 +1,210 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+  namespace: rednorte
+  labels:
+    app: grafana
+    component: config
+  annotations:
+    description: "Configuración principal de Grafana para RedNorte"
+
+data:
+  grafana.ini: |
+    # Configuración principal de Grafana
+    
+    [server]
+    # Protocolo y puerto
+    protocol = http
+    http_port = 3000
+    domain = grafana.rednorte.cl
+    root_url = https://grafana.rednorte.cl
+    
+    # Configuración de seguridad
+    enforce_domain = true
+    serve_from_sub_path = false
+    
+    [security]
+    # Configuración de administrador
+    admin_user = ${GF_SECURITY_ADMIN_USER}
+    admin_password = ${GF_SECURITY_ADMIN_PASSWORD}
+    secret_key = ${GF_SECURITY_SECRET_KEY}
+    
+    # Configuración de login
+    disable_gravatar = false
+    data_source_proxy_whitelist = localhost:127.0.0.1
+    
+    # Configuración de cookies
+    cookie_username = grafana_user
+    cookie_remember_name = grafana_remember
+    disable_login_form = false
+    
+    # Configuración de seguridad de sesión
+    login_maximum_inactive_lifetime_duration = 10m
+    login_maximum_lifetime_duration = 7d
+    
+    [users]
+    # Configuración de usuarios
+    allow_sign_up = false
+    allow_org_create = false
+    auto_assign_org = true
+    auto_assign_org_role = Viewer
+    default_theme = light
+    home_dashboard = /dashboard/home
+    
+    [auth]
+    # Configuración de autenticación
+    disable_login_form = false
+    oauth_auto_login = false
+    
+    [auth.anonymous]
+    # Configuración de acceso anónimo
+    enabled = false
+    org_name = RedNorte
+    org_role = Viewer
+    
+    [auth.basic]
+    # Configuración de autenticación básica
+    enabled = true
+    
+    [auth.proxy]
+    # Configuración de proxy de autenticación
+    enabled = false
+    
+    [auth.ldap]
+    # Configuración LDAP
+    enabled = false
+    
+    [smtp]
+    # Configuración de correo para alertas
+    enabled = true
+    host = ${GF_SMTP_HOST}
+    user = ${GF_SMTP_USER}
+    password = ${GF_SMTP_PASSWORD}
+    from_address = ${GF_SMTP_FROM_ADDRESS}
+    from_name = Grafana RedNorte
+    
+    [emails]
+    # Configuración de plantillas de correo
+    welcome_email_on_sign_up = false
+    templates_pattern = emails/*.html
+    
+    [log]
+    # Configuración de logs
+    mode = console,file
+    level = info
+    console_level = info
+    file_level = info
+    
+    [log.console]
+    # Configuración de logs a consola
+    format = text
+    
+    [log.file]
+    # Configuración de logs a archivo
+    format = text
+    log_rotate = true
+    daily_rotate = true
+    max_days = 7
+    max_size = 100
+    
+    [paths]
+    # Configuración de rutas
+    data = /var/lib/grafana
+    logs = /var/log/grafana
+    plugins = /var/lib/grafana/plugins
+    provisioning = /etc/grafana/provisioning
+    
+    [database]
+    # Configuración de base de datos (SQLite por defecto)
+    type = sqlite3
+    path = /var/lib/grafana/grafana.db
+    host = 127.0.0.1:3306
+    name = grafana
+    user = root
+    password = 
+    
+    [session]
+    # Configuración de sesiones
+    provider = file
+    provider_config = sessions
+    cookie_name = grafana_sess
+    cookie_secure = true
+    session_life_time = 86400
+    
+    [analytics]
+    # Configuración de analytics (desactivado para privacidad)
+    reporting_enabled = false
+    check_for_updates = true
+    google_analytics_ua_id = 
+    
+    [metrics]
+    # Configuración de métricas internas
+    enabled = true
+    interval_seconds = 10
+    
+    [tracing.jaeger]
+    # Configuración de tracing (desactivado por ahora)
+    enabled = false
+    
+    [grafana_com]
+    # Configuración de conexión a Grafana.com
+    url = https://grafana.com
+    
+    [snapshots]
+    # Configuración de snapshots
+    external_enabled = true
+    external_snapshot_url = https://snapshots-origin.raintank.io
+    external_snapshot_name = Publish to snapshot.raintank.io
+    
+    [external_image_storage]
+    # Configuración de almacenamiento externo de imágenes
+    provider = s3
+    s3_endpoint = 
+    s3_bucket = 
+    s3_region = 
+    s3_path = 
+    s3_access_key = 
+    s3_secret_key = 
+    
+    [plugins]
+    # Configuración de plugins
+    enable_alpha = false
+    app_tls_skip_verify_insecure = false
+    allow_loading_unsigned_plugins = grafana-piechart-panel,grafana-worldmap-panel,grafana-clock-panel
+    
+    [enterprise]
+    # Configuración enterprise (no aplica para versión OSS)
+    license_path = 
+    
+    [feature_toggles]
+    # Configuración de features experimentales
+    enable = publicDashboards,embedV1,correlations,topnav,alerting,annotations,dashboardVersions,explore,streaming,accessControlOnCall,remoteCacheAdmin,queryHistory,searchV2,shortUrls,theming,timezonePicker,grafanaOnCallApp,indicators,metricsSummary,reporting,frontendAnnotations
+    
+    [date_formats]
+    # Configuración de formatos de fecha
+    default_timezone = UTC
+    default_date_format = YYYY-MM-DD
+    default_time_format = HH:mm:ss
+    default_full_date_format = YYYY-MM-DD HH:mm:ss
+    
+    [explore]
+    # Configuración de Explore
+    enabled = true
+    
+    [alerting]
+    # Configuración de alerting
+    enabled = true
+    execute_alerts = true
+    error_or_timeout = alerting
+    nagraph_or_timeout = alerting
+    concurrent_query_limit = 10
+    
+    [unified_alerting]
+    # Configuración de alerting unificado
+    enabled = true
+    
+    [quota]
+    # Configuración de cuotas
+    enabled = true
+    org_user_role = Viewer
