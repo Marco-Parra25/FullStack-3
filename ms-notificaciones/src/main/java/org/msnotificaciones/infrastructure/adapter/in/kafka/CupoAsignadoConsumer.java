@@ -2,6 +2,7 @@ package org.msnotificaciones.infrastructure.adapter.in.kafka;
 
 import org.msnotificaciones.application.usecase.NotificarPacienteUseCase;
 import org.msnotificaciones.domain.event.CupoAsignadoEvent;
+import org.msnotificaciones.infrastructure.adapter.in.kafka.dto.CupoAsignadoDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -18,27 +19,26 @@ public class CupoAsignadoConsumer {
     }
 
     @KafkaListener(topics = "cupo-asignado", groupId = "notificaciones-group")
-    public void consumir(CupoAsignadoEvent evento) {
-        // EL TRY-CATCH VA AQUÍ PROTEGIENDO LA EJECUCIÓN DEL CASO DE USO
+    public void consumir(CupoAsignadoDTO dto) { // 1. Recibe el DTO técnico de Kafka
         try {
-            log.info(">>> Evento recibido de Kafka para paciente: {}", evento.pacienteRut());
+            log.info("===[ ADAPTADOR ENTRADA ]=== Mensaje recibido desde Kafka para: {}", dto.getPacienteRut());
 
-            // Llamada al caso de uso (donde está la lógica de negocio)
-            useCase.ejecutar(
-                    evento.pacienteRut(),
-                    evento.email(),
-                    evento.telefono(),
-                    evento.especialidad()
+            // 2. MAPEO: Convertimos el DTO (Infra) al Objeto de Dominio (Event)
+            // Esto protege tu lógica de negocio de cambios en el JSON de Kafka
+            CupoAsignadoEvent eventoDeDominio = new CupoAsignadoEvent(
+                    dto.getPacienteRut(),
+                    dto.getEmail(),
+                    dto.getTelefono(),
+                    dto.getEspecialidad()
             );
 
-            log.info(">>> Notificación procesada exitosamente para RUT: {}", evento.pacienteRut());
+            // 3. Ejecutamos el caso de uso pasando el objeto de dominio
+            useCase.ejecutar(eventoDeDominio);
+
+            log.info(">>> Flujo de notificación completado para RUT: {}", dto.getPacienteRut());
 
         } catch (Exception e) {
-            // Si algo falla (ej. el servicio de email está caído), capturamos el error aquí
-            log.error("XXX Error al procesar la notificación para el paciente {}: {}",
-                    evento.pacienteRut(), e.getMessage());
-
-            // Aquí podrías implementar una lógica de reintento o enviar a una Dead Letter Queue (DLQ)
+            log.error("XXX Error crítico en el Adaptador de Entrada: {}", e.getMessage());
         }
     }
 }

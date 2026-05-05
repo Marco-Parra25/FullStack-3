@@ -1,6 +1,8 @@
 package org.msnotificaciones.domain.port.out;
 
+import org.msnotificaciones.domain.event.CupoAsignadoEvent;
+
 public interface NotificacionPort {
-    void enviarEmail(String destinatario, String mensaje, String rut, String especialidad);
-    void enviarSMS(String telefono, String mensaje, String rut, String especialidad);
+    // El puerto ahora es genérico y recibe el evento completo
+    void enviarNotificacion(CupoAsignadoEvent evento);
 }

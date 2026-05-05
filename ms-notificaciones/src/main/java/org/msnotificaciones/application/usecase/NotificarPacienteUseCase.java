@@ -1,5 +1,6 @@
 package org.msnotificaciones.application.usecase;
 
+import org.msnotificaciones.domain.event.CupoAsignadoEvent;
 import org.msnotificaciones.domain.port.out.NotificacionPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,16 +15,24 @@ public class NotificarPacienteUseCase {
         this.notificacionPort = notificacionPort;
     }
 
-    public void ejecutar(String rut, String email, String telefono, String especialidad) {
-        String mensajeBody = String.format(
-                "Estimado paciente con RUT %s: Se ha reasignado su cupo para la especialidad de %s.",
-                rut, especialidad
-        );
+    /**
+     * Ejecuta la lógica de negocio de la notificación.
+     * Recibe el objeto de dominio completo para mantener la flexibilidad.
+     */
+    public void ejecutar(CupoAsignadoEvent evento) {
+        log.info("===[ CAPA APLICACIÓN ]=== Procesando lógica de notificación para RUT: {}", evento.pacienteRut());
 
-        log.info("Procesando notificación en Dominio para RUT: {} y Especialidad: {}", rut, especialidad);
+        // 1. Validaciones de Negocio (Ejemplo)
+        if (evento.pacienteRut() == null || evento.pacienteRut().isEmpty()) {
+            log.error("No se puede procesar: El RUT del paciente es obligatorio.");
+            return;
+        }
 
-        // Enviamos el cuerpo del mensaje y los datos meta para trazabilidad
-        notificacionPort.enviarEmail(email, mensajeBody, rut, especialidad);
-        notificacionPort.enviarSMS(telefono, mensajeBody, rut, especialidad);
+        // 2. Orquestación: Delegamos al puerto la responsabilidad técnica de notificar.
+        // El caso de uso no necesita saber CÓMO se envía el mensaje (Email o SMS),
+        // solo le dice al puerto que lo haga usando los datos del evento.
+        notificacionPort.enviarNotificacion(evento);
+
+        log.info("===[ CAPA APLICACIÓN ]=== Lógica completada para RUT: {}", evento.pacienteRut());
     }
 }
