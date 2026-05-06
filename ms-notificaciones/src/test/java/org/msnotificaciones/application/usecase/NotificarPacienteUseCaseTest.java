@@ -8,8 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.msnotificaciones.domain.event.CupoAsignadoEvent;
 import org.msnotificaciones.domain.port.out.NotificacionPort;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,29 +22,30 @@ class NotificarPacienteUseCaseTest {
 
     @Test
     void debeEnviarEmailYSmsCuandoAmbosDatosEstanPresentes() {
-        // ARRANGE
+        // ARRANGE: Siguiendo tu record (RUT, TELÉFONO, EMAIL, ESPECIALIDAD)
         CupoAsignadoEvent evento = new CupoAsignadoEvent(
-                "12345678-9",
-                "paciente@correo.cl",
-                "+56912345678",
-                "Cardiología"
+                "12345678-9",          // pacienteRut
+                "+56912345678",        // telefono
+                "paciente@correo.cl",  // email
+                "Cardiología"          // especialidad
         );
 
         // ACT
         useCase.ejecutar(evento);
 
-        // ASSERT: Verificamos que se llamaron AMBOS canales
+        // ASSERT
+        // Ahora los verificadores coincidirán con los getters del record
         verify(notificacionPort, times(1)).enviarEmail(eq("paciente@correo.cl"), contains("Cardiología"));
         verify(notificacionPort, times(1)).enviarSMS(eq("+56912345678"), contains("12345678-9"));
     }
 
     @Test
     void debeEnviarSoloEmailSiTelefonoEsNulo() {
-        // ARRANGE
+        // ARRANGE: Teléfono en posición 2 como null
         CupoAsignadoEvent evento = new CupoAsignadoEvent(
                 "12345678-9",
+                null,
                 "paciente@correo.cl",
-                null, // Teléfono nulo
                 "Cardiología"
         );
 
@@ -53,19 +53,19 @@ class NotificarPacienteUseCaseTest {
         useCase.ejecutar(evento);
 
         // ASSERT
-        verify(notificacionPort, times(1)).enviarEmail(anyString(), anyString());
-        verify(notificacionPort, never()).enviarSMS(anyString(), anyString()); // Verificamos la lógica de decisión
+        verify(notificacionPort, times(1)).enviarEmail(eq("paciente@correo.cl"), anyString());
+        verify(notificacionPort, never()).enviarSMS(anyString(), anyString());
     }
 
     @Test
     void noDebeLlamarAPuertoSiRutEsNulo() {
         // ARRANGE
-        CupoAsignadoEvent evento = new CupoAsignadoEvent(null, "p@c.cl", "123", "Cita");
+        CupoAsignadoEvent evento = new CupoAsignadoEvent(null, "123456", "p@c.cl", "Cita");
 
         // ACT
         useCase.ejecutar(evento);
 
-        // ASSERT: La validación de negocio debería detener el proceso
+        // ASSERT
         verifyNoInteractions(notificacionPort);
     }
 }
