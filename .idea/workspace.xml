@@ -5,7 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ddabab3d-cbda-4da8-aa15-0bde79a7483f" name="Changes" comment="se crea dto, actualiza el usecase(service), modificaciones generales">
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-reasignacion/src/main/java/org/msreasignacion/infrastructure/repository/ReasignacionRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-reasignacion/src/main/java/org/msreasignacion/infrastructure/repository/ReasignacionRepository.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,6 +36,10 @@
     &quot;accountId&quot;: &quot;e53eb78a-b816-4421-b109-03f1b0fcf9b1&quot;
   }
 }</component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 6
 }</component>
@@ -53,7 +59,7 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "feat-ms-reasignacion-hp",
+    "git-widget-placeholder": "#2 on feat-ms-reasignacion-hp",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/SSDD/Desktop/Nueva carpeta/FullStack-3"
   }

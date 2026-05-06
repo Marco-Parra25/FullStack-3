@@ -9,15 +9,23 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/rednorte_db
     username: postgres
-    password: postgres # Cambia esto si en tu docker-compose pusiste otra clave
+    password: postgres
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: validate # Flyway se encargará de crear las tablas, no Hibernate
+      ddl-auto: validate # Flyway manda sobre la estructura
     show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
 
-  # Conexión a Kafka
+  # Configuración de Flyway (Migraciones de BD)
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+  # Mensajería Kafka
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
@@ -31,7 +39,25 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
-  # Configuración de Flyway (Migraciones de BD)
-  flyway:
-    enabled: true
-    baseline-on-migrate: true
+# --- NUEVA SECCIÓN: RESILIENCIA ---
+resilience4j:
+  circuitbreaker:
+    instances:
+      backendReasignacion:
+        registerHealthIndicator: true
+        slidingWindowSize: 10              # Evalúa las últimas 10 llamadas
+        minimumNumberOfCalls: 5            # Mínimo de llamadas para empezar a calcular
+        failureRateThreshold: 50           # Abre el circuito si el 50% falla
+        waitDurationInOpenState: 10s       # Tiempo que espera antes de intentar reabrir (Half-open)
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowType: COUNT_BASED
+
+# Configuración de Actuator para monitorear el Circuit Breaker
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus
+  endpoint:
+    health:
+      show-details: always
