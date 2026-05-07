@@ -2,6 +2,7 @@ package cl.rednorte.gateway.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
@@ -22,15 +23,18 @@ public class SecurityConfig {
                 .pathMatchers("/fallback/**").permitAll()
                 .pathMatchers("/api/lista-espera/public/**").permitAll()
                 
+                // Rutas específicas por método HTTP para /api/lista-espera/**
+                .pathMatchers(HttpMethod.POST, "/api/lista-espera/**").hasRole("ROLE_ADMIN")
+                .pathMatchers(HttpMethod.GET, "/api/lista-espera/**").hasAnyRole("ROLE_ADMIN", "ROLE_USER", "ROLE_MEDICO")
+                
                 // Rutas de administradores y médicos
-                .pathMatchers("/api/lista-espera/admin/**").hasAnyRole("ADMIN", "MEDICO")
-                .pathMatchers("/api/reasignacion/**").hasAnyRole("ADMIN", "MEDICO")
+                .pathMatchers("/api/reasignacion/**").hasAnyRole("ROLE_ADMIN", "ROLE_MEDICO")
                 
                 // Rutas de notificaciones (todos los roles autenticados)
-                .pathMatchers("/api/notificaciones/**").hasAnyRole("ADMIN", "MEDICO", "PACIENTE")
+                .pathMatchers("/api/notificaciones/**").hasAnyRole("ROLE_ADMIN", "ROLE_MEDICO", "ROLE_PACIENTE")
                 
                 // Rutas de monitoreo (solo administradores)
-                .pathMatchers("/api/monitoreo/**").hasRole("ADMIN")
+                .pathMatchers("/api/monitoreo/**").hasRole("ROLE_ADMIN")
                 
                 // Todas las demás rutas requieren autenticación
                 .anyExchange().authenticated()

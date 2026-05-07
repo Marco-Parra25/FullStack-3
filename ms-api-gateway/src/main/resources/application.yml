@@ -16,6 +16,7 @@ spring:
             - Path=/api/lista-espera/**
           filters:
             - StripPrefix=2
+            - name: TokenRelay
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 10
@@ -33,6 +34,7 @@ spring:
             - Path=/api/reasignacion/**
           filters:
             - StripPrefix=2
+            - name: TokenRelay
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 10
@@ -50,6 +52,7 @@ spring:
             - Path=/api/notificaciones/**
           filters:
             - StripPrefix=2
+            - name: TokenRelay
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 15
@@ -67,11 +70,16 @@ spring:
             - Path=/api/monitoreo/**
           filters:
             - StripPrefix=2
+            - name: TokenRelay
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 5
                 redis-rate-limiter.burstCapacity: 10
                 key-resolver: "#{@userKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: monitoreoCircuitBreaker
+                fallbackUri: forward:/fallback/monitoreo
 
       # Configuración CORS global
       globalcors:
@@ -122,6 +130,15 @@ resilience4j:
         failureRateThreshold: 50
         
       notificacionesCircuitBreaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
+        
+      monitoreoCircuitBreaker:
         registerHealthIndicator: true
         slidingWindowSize: 10
         minimumNumberOfCalls: 5
