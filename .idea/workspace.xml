@@ -5,9 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ddabab3d-cbda-4da8-aa15-0bde79a7483f" name="Changes" comment="se crea dto, actualiza el usecase(service), modificaciones generales">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-reasignacion/src/main/java/org/msreasignacion/infrastructure/repository/ReasignacionRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-reasignacion/src/main/java/org/msreasignacion/infrastructure/repository/ReasignacionRepository.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,6 +60,11 @@
     "git-widget-placeholder": "#2 on feat-ms-reasignacion-hp",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/SSDD/Desktop/Nueva carpeta/FullStack-3"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
+    ]
   }
 }]]></component>
   <component name="RunManager" selected="JUnit.MsReasignacionApplicationTest">
