@@ -14,19 +14,24 @@ import java.util.Map;
 @RequestMapping("/fallback")
 public class FallbackController {
 
+    @GetMapping("/monitoreo")
+    public Mono<Map<String, Object>> monitoreoFallback() {
+        return createFallbackResponse("monitoreo", "Servicio de monitoreo temporalmente no disponible");
+    }
+
     @GetMapping("/lista-espera")
     public Mono<Map<String, Object>> listaEsperaFallback() {
-        return createFallbackResponse("ms-lista-espera", "Servicio de lista de espera temporalmente no disponible");
+        return createFallbackResponse("lista-espera", "Servicio de lista de espera temporalmente no disponible");
     }
 
     @GetMapping("/reasignacion")
     public Mono<Map<String, Object>> reasignacionFallback() {
-        return createFallbackResponse("ms-reasignacion", "Servicio de reasignación temporalmente no disponible");
+        return createFallbackResponse("reasignacion", "Servicio de reasignación temporalmente no disponible");
     }
 
     @GetMapping("/notificaciones")
     public Mono<Map<String, Object>> notificacionesFallback() {
-        return createFallbackResponse("ms-notificaciones", "Servicio de notificaciones temporalmente no disponible");
+        return createFallbackResponse("notificaciones", "Servicio de notificaciones temporalmente no disponible");
     }
 
     @GetMapping("/bff-portal")

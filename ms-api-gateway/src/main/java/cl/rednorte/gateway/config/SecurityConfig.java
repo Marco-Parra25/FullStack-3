@@ -33,9 +33,7 @@ public class SecurityConfig {
                 // Rutas de notificaciones (todos los roles autenticados)
                 .pathMatchers("/api/notificaciones/**").hasAnyRole("ROLE_ADMIN", "ROLE_MEDICO", "ROLE_PACIENTE")
                 
-                // Rutas de monitoreo (solo administradores)
-                .pathMatchers("/api/monitoreo/**").hasRole("ROLE_ADMIN")
-                
+                                
                 // Todas las demás rutas requieren autenticación
                 .anyExchange().authenticated()
             )
