@@ -1,5 +1,6 @@
 package cl.rednorte.listaespera.domain.port.input;
 
+import cl.rednorte.listaespera.domain.model.EstadoEspera;
 import cl.rednorte.listaespera.domain.model.TipoAtencion;
 import cl.rednorte.listaespera.domain.model.WaitlistItem;
 
@@ -16,6 +17,8 @@ public interface WaitlistUseCase {
     WaitlistItem obtenerPorId(Long id);
 
     void cancelar(Long id);
+
+    WaitlistItem actualizarEstado(Long id, EstadoEspera estado);
 
     long contarEnEspera();
 

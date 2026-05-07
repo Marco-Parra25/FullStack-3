@@ -1,6 +1,7 @@
 package cl.rednorte.listaespera.domain.service;
 
 import cl.rednorte.listaespera.domain.factory.WaitlistItemFactory;
+import cl.rednorte.listaespera.domain.model.EstadoEspera;
 import cl.rednorte.listaespera.domain.model.Paciente;
 import cl.rednorte.listaespera.domain.model.TipoAtencion;
 import cl.rednorte.listaespera.domain.model.WaitlistItem;
@@ -52,6 +53,13 @@ public class WaitlistService implements WaitlistUseCase {
         WaitlistItem item = obtenerPorId(id);
         item.cancelar();
         waitlistRepository.save(item);
+    }
+
+    @Override
+    public WaitlistItem actualizarEstado(Long id, EstadoEspera estado) {
+        WaitlistItem item = obtenerPorId(id);
+        item.cambiarEstado(estado);
+        return waitlistRepository.save(item);
     }
 
     @Override

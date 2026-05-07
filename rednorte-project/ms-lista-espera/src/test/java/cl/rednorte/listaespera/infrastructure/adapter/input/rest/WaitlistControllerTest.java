@@ -90,6 +90,29 @@ class WaitlistControllerTest {
     }
 
     @Test
+    @DisplayName("PATCH /api/v1/waitlist/{id}/estado actualiza estado y retorna 200")
+    void actualizarEstado() throws Exception {
+        WaitlistItem actualizado = WaitlistItem.builder()
+                .id(1L)
+                .paciente(Paciente.builder()
+                        .id(1L).rut("12345678-9").nombre("María").apellido("González").build())
+                .tipoAtencion(TipoAtencion.CONSULTA)
+                .especialidad("Cardiología")
+                .prioridad(3)
+                .estado(EstadoEspera.ATENDIDO)
+                .fechaIngreso(LocalDate.of(2025, 6, 15))
+                .build();
+
+        when(waitlistUseCase.actualizarEstado(1L, EstadoEspera.ATENDIDO)).thenReturn(actualizado);
+
+        mockMvc.perform(patch("/api/v1/waitlist/1/estado")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"estado\": \"ATENDIDO\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.estado").value("ATENDIDO"));
+    }
+
+    @Test
     @DisplayName("GET /api/v1/waitlist/{id} retorna item específico")
     void obtenerPorId() throws Exception {
         when(waitlistUseCase.obtenerPorId(1L)).thenReturn(crearItemDePrueba());

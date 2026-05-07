@@ -48,6 +48,13 @@ public class WaitlistItem {
         this.fechaAsignacion = LocalDateTime.now();
     }
 
+    public void cambiarEstado(EstadoEspera nuevoEstado) {
+        this.estado = nuevoEstado;
+        if (nuevoEstado == EstadoEspera.ASIGNADO) {
+            this.fechaAsignacion = LocalDateTime.now();
+        }
+    }
+
     public static Builder builder() { return new Builder(); }
 
     public static class Builder {

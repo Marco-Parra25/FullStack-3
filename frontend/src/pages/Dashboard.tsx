@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
-
-const BFF_URL = 'http://localhost:3001'
+import axiosInstance from '../services/axiosInstance'
 
 interface Paciente {
   id: number
@@ -19,7 +17,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    axios.get(`${BFF_URL}/admin/lista`)
+    axiosInstance.get('/admin/lista')
       .then(res => {
         setPacientes(res.data.pacientes)
         setTotalEnEspera(res.data.totalEnEspera)
@@ -28,7 +26,7 @@ export default function Dashboard() {
       .catch(() => setLoading(false))
 
     const intervalo = setInterval(() => {
-      axios.get(`${BFF_URL}/admin/lista`)
+      axiosInstance.get('/admin/lista')
         .then(res => {
           setPacientes(res.data.pacientes)
           setTotalEnEspera(res.data.totalEnEspera)
@@ -167,6 +165,18 @@ export default function Dashboard() {
         </div>
 
       </div>
+
+      <div className="card" style={{ marginTop: '1.5rem' }}>
+        <h2>Dashboard Grafana</h2>
+        <iframe
+          src={import.meta.env.VITE_GRAFANA_URL || 'http://localhost:3000'}
+          width="100%"
+          height="600"
+          style={{ border: 'none', borderRadius: '6px', marginTop: '1rem' }}
+          title="Grafana Dashboard"
+        />
+      </div>
+
     </div>
   )
 }

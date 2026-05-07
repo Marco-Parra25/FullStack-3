@@ -5,30 +5,90 @@ interface Props {
   setRol: (rol: string) => void
 }
 
-const usuarios = [
+const MOCK_USERS = [
   { usuario: 'admin', password: '1234', rol: 'admin', nombre: 'María Pérez' },
   { usuario: 'medico', password: '1234', rol: 'medico', nombre: 'Dr. Carlos López' },
   { usuario: 'paciente', password: '1234', rol: 'paciente', nombre: 'Juan González' },
 ]
 
+function decodeJwtPayload(token: string): Record<string, unknown> {
+  const payload = token.split('.')[1]
+  const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'))
+  return JSON.parse(decoded)
+}
+
+function extractRole(payload: Record<string, unknown>): string {
+  const realmAccess = payload.realm_access as { roles?: string[] } | undefined
+  const roles = realmAccess?.roles ?? []
+  if (roles.includes('admin')) return 'admin'
+  if (roles.includes('medico')) return 'medico'
+  return 'paciente'
+}
+
 export default function Login({ setRol }: Props) {
   const [usuario, setUsuario] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
-  const login = () => {
-    const user = usuarios.find(
-      u => u.usuario === usuario && u.password === password
-    )
+  const useMock = import.meta.env.VITE_USE_MOCK_AUTH === 'true'
+
+  const loginMock = () => {
+    const user = MOCK_USERS.find(u => u.usuario === usuario && u.password === password)
     if (user) {
+      const mockToken = btoa(JSON.stringify({ sub: user.usuario, rol: user.rol, nombre: user.nombre }))
+      sessionStorage.setItem('token', mockToken)
       setRol(user.rol)
       if (user.rol === 'admin') navigate('/admin')
-      if (user.rol === 'medico') navigate('/dashboard')
-      if (user.rol === 'paciente') navigate('/portal')
+      else if (user.rol === 'medico') navigate('/dashboard')
+      else navigate('/portal')
     } else {
       setError('Usuario o contraseña incorrectos')
     }
+  }
+
+  const loginKeycloak = async () => {
+    setError('')
+    setLoading(true)
+    try {
+      const keycloakUrl = import.meta.env.VITE_KEYCLOAK_URL
+      const clientId = import.meta.env.VITE_KEYCLOAK_CLIENT_ID
+      const res = await fetch(
+        `${keycloakUrl}/realms/rednorte/protocol/openid-connect/token`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            grant_type: 'password',
+            client_id: clientId,
+            username: usuario,
+            password,
+          }),
+        }
+      )
+      if (!res.ok) {
+        setError('Usuario o contraseña incorrectos')
+        return
+      }
+      const data = await res.json()
+      sessionStorage.setItem('token', data.access_token)
+      const payload = decodeJwtPayload(data.access_token)
+      const rol = extractRole(payload)
+      setRol(rol)
+      if (rol === 'admin') navigate('/admin')
+      else if (rol === 'medico') navigate('/dashboard')
+      else navigate('/portal')
+    } catch {
+      setError('No se pudo conectar con el servidor de autenticación')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const login = () => {
+    if (useMock) loginMock()
+    else loginKeycloak()
   }
 
   return (
@@ -77,19 +137,23 @@ export default function Login({ setRol }: Props) {
         )}
 
         <button
+          type="button"
           className="btn-primary"
           onClick={login}
-          style={{ width: '100%', padding: '0.7rem' }}
+          disabled={loading}
+          style={{ width: '100%', padding: '0.7rem', opacity: loading ? 0.7 : 1 }}
         >
-          Iniciar sesión
+          {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
         </button>
 
-        <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#f5f9fc', borderRadius: '6px' }}>
-          <p style={{ fontSize: '12px', color: '#888', marginBottom: '0.5rem' }}>Usuarios de prueba:</p>
-          <p style={{ fontSize: '12px', color: '#555' }}>admin / 1234 → Administrativo</p>
-          <p style={{ fontSize: '12px', color: '#555' }}>medico / 1234 → Médico</p>
-          <p style={{ fontSize: '12px', color: '#555' }}>paciente / 1234 → Paciente</p>
-        </div>
+        {useMock && (
+          <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#f5f9fc', borderRadius: '6px' }}>
+            <p style={{ fontSize: '12px', color: '#888', marginBottom: '0.5rem' }}>Usuarios de prueba:</p>
+            <p style={{ fontSize: '12px', color: '#555' }}>admin / 1234 → Administrativo</p>
+            <p style={{ fontSize: '12px', color: '#555' }}>medico / 1234 → Médico</p>
+            <p style={{ fontSize: '12px', color: '#555' }}>paciente / 1234 → Paciente</p>
+          </div>
+        )}
       </div>
     </div>
   )
