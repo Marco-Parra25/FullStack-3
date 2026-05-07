@@ -5,11 +5,11 @@ spring:
   application:
     name: ms-reasignacion
 
-  # Conexión a la Base de Datos PostgreSQL
+  # Conexión a la Base de Datos PostgreSQL (Ajustado al Docker Compose)
   datasource:
-    url: jdbc:postgresql://localhost:5432/rednorte_db
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://localhost:5432/reasignacion_db
+    username: rednorte
+    password: rednorte123
     driver-class-name: org.postgresql.Driver
 
   jpa:
