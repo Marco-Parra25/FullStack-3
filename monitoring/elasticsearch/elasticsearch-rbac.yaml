@@ -1,0 +1,74 @@
+---
+# ServiceAccount para Elasticsearch
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: elasticsearch
+  namespace: rednorte
+  labels:
+    app: elasticsearch
+    component: rbac
+  annotations:
+    description: "ServiceAccount para Elasticsearch con permisos de logging"
+
+---
+# Role para Elasticsearch (namespace scope)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: elasticsearch
+  namespace: rednorte
+  labels:
+    app: elasticsearch
+    component: rbac
+  annotations:
+    description: "Role con permisos para Elasticsearch en namespace rednorte"
+
+rules:
+# Permisos para leer recursos de logging
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+
+# Permisos para leer deployments y replicasets
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets", "replicationcontrollers"]
+  verbs: ["get", "list", "watch"]
+
+# Permisos para leer HPA
+- apiGroups: ["autoscaling"]
+  resources: ["horizontalpodautoscalers"]
+  verbs: ["get", "list", "watch"]
+
+# Permisos para leer batch jobs
+- apiGroups: ["batch"]
+  resources: ["jobs", "cronjobs"]
+  verbs: ["get", "list", "watch"]
+
+# Permisos para leer networking
+- apiGroups: ["extensions", "networking.k8s.io"]
+  resources: ["ingresses", "networkpolicies"]
+  verbs: ["get", "list", "watch"]
+
+---
+# RoleBinding para Elasticsearch
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: elasticsearch
+  namespace: rednorte
+  labels:
+    app: elasticsearch
+    component: rbac
+  annotations:
+    description: "Binding del Role de Elasticsearch al ServiceAccount"
+
+subjects:
+- kind: ServiceAccount
+  name: elasticsearch
+  namespace: rednorte
+
+roleRef:
+  kind: Role
+  name: elasticsearch
+  apiGroup: rbac.authorization.k8s.io

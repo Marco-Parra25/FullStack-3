@@ -1,0 +1,64 @@
+---
+# ServiceAccount para Filebeat
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: filebeat
+  namespace: rednorte
+  labels:
+    app: filebeat
+    component: rbac
+  annotations:
+    description: "ServiceAccount para Filebeat con permisos de logging"
+
+---
+# Role para Filebeat (namespace scope)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: filebeat
+  namespace: rednorte
+  labels:
+    app: filebeat
+    component: rbac
+  annotations:
+    description: "Role con permisos para Filebeat en namespace rednorte"
+
+rules:
+# Permisos para leer pods y logs
+- apiGroups: [""]
+  resources: ["pods", "pods/log"]
+  verbs: ["get", "list", "watch"]
+
+# Permisos para leer eventos
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["get", "list", "watch"]
+
+# Permisos para leer namespaces
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["get", "list", "watch"]
+
+---
+# RoleBinding para Filebeat
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: filebeat
+  namespace: rednorte
+  labels:
+    app: filebeat
+    component: rbac
+  annotations:
+    description: "Binding del Role de Filebeat al ServiceAccount"
+
+subjects:
+- kind: ServiceAccount
+  name: filebeat
+  namespace: rednorte
+
+roleRef:
+  kind: Role
+  name: filebeat
+  apiGroup: rbac.authorization.k8s.io
