@@ -32,7 +32,7 @@ export default function PanelAdmin() {
   })
 
   const cargarLista = () => {
-    axiosInstance.get('/admin/lista')
+    axiosInstance.get('/api/bff/admin/lista')
       .then(res => {
         setPacientes(res.data.pacientes)
         setTotalEnEspera(res.data.totalEnEspera)
@@ -42,7 +42,7 @@ export default function PanelAdmin() {
   }
 
   const cargarPacientes = () => {
-    axiosInstance.get('/admin/pacientes')
+    axiosInstance.get('/api/bff/admin/pacientes')
       .then(res => setPacientesDisponibles(res.data))
       .catch(() => console.error('Error al cargar pacientes'))
   }
@@ -63,7 +63,7 @@ useEffect(() => {
       alert('Completa todos los campos')
       return
     }
-    axiosInstance.post('/admin/registrar', {
+    axiosInstance.post('/api/bff/admin/registrar', {
       pacienteId: parseInt(form.pacienteId),
       tipoAtencion: form.tipoAtencion,
       especialidad: form.especialidad
@@ -84,12 +84,21 @@ useEffect(() => {
 
   const cancelar = (id: number) => {
     if (!confirm(`¿Cancelar cita del paciente ${id}?`)) return
-    axiosInstance.patch(`/admin/cancelar/${id}`)
+    axiosInstance.patch(`/api/bff/admin/cancelar/${id}`)
       .then(() => {
         alert('Cita cancelada')
         cargarLista()
       })
       .catch(() => alert('Error al cancelar'))
+  }
+
+  const cambiarEstado = (id: number, estado: string) => {
+    if (!confirm(`¿Cambiar estado del paciente ${id} a "${estado}"?`)) return
+    axiosInstance.patch(`/api/bff/admin/waitlist/${id}/estado`, { estado })
+      .then(() => {
+        cargarLista()
+      })
+      .catch(() => alert('Error al actualizar estado'))
   }
 
   if (loading) return <p>Cargando...</p>
@@ -162,7 +171,13 @@ useEffect(() => {
               <td>{p.prioridad}</td>
               <td><span className="badge-espera">{p.estado}</span></td>
               <td>{p.fechaIngreso}</td>
-              <td>
+              <td style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                <button className="btn-primary" onClick={() => cambiarEstado(p.id, 'EN_ATENCION')}>
+                  En atención
+                </button>
+                <button className="btn-primary" onClick={() => cambiarEstado(p.id, 'ATENDIDO')}>
+                  Atendido
+                </button>
                 <button className="btn-danger" onClick={() => cancelar(p.id)}>
                   Cancelar
                 </button>

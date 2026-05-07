@@ -5,11 +5,15 @@ const { handleGatewayError } = require('../utils/gatewayError')
 // Lista de espera
 router.get('/lista', async (req, res) => {
   try {
-    const lista = await service.listarPorPrioridad()
-    const count = await service.contarEnEspera()
+    const [lista, count, pacientes] = await Promise.all([
+      service.listarPorPrioridad(),
+      service.contarEnEspera(),
+      service.listarPacientes(),
+    ])
     res.json({
       pacientes: lista.data,
-      totalEnEspera: count.data.enEspera
+      totalEnEspera: count.data.enEspera,
+      pacientesDisponibles: pacientes.data,
     })
   } catch (error) {
     handleGatewayError(res, error, 'Error al obtener lista')
@@ -34,6 +38,15 @@ router.patch('/cancelar/:id', async (req, res) => {
     res.status(204).send()
   } catch (error) {
     handleGatewayError(res, error, 'Error al cancelar')
+  }
+})
+
+router.patch('/waitlist/:id/estado', async (req, res) => {
+  try {
+    const resultado = await service.actualizarEstado(req.params.id, req.body.estado)
+    res.json(resultado.data)
+  } catch (error) {
+    handleGatewayError(res, error, 'Error al actualizar estado')
   }
 })
 

@@ -24,7 +24,7 @@ export default function GestionPacientes() {
   })
 
   const cargarPacientes = () => {
-    axiosInstance.get('/admin/pacientes')
+    axiosInstance.get('/api/bff/admin/pacientes')
       .then(res => {
         setPacientes(res.data)
         setLoading(false)
@@ -41,7 +41,7 @@ export default function GestionPacientes() {
       alert('RUT, nombre y apellido son obligatorios')
       return
     }
-    axiosInstance.post('/admin/pacientes', form)
+    axiosInstance.post('/api/bff/admin/pacientes', form)
       .then(res => {
         alert(`Paciente ${res.data.nombre} creado con ID ${res.data.id}`)
         setForm({ rut: '', nombre: '', apellido: '', telefono: '', email: '' })

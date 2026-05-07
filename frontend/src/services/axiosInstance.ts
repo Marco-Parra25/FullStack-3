@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_BFF_URL || 'http://localhost:3001',
+  baseURL: import.meta.env.VITE_GATEWAY_URL || 'http://localhost:8080',
 })
 
 axiosInstance.interceptors.request.use(config => {
