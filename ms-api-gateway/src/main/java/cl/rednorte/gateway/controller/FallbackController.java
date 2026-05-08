@@ -39,6 +39,11 @@ public class FallbackController {
         return createFallbackResponse("bff-admin", "Panel administrativo temporalmente no disponible");
     }
 
+    @GetMapping("/monitoreo")
+    public Mono<Map<String, Object>> monitoreoFallback() {
+        return createFallbackResponse("monitoreo", "Servicio de monitoreo temporalmente no disponible");
+    }
+
     private Mono<Map<String, Object>> createFallbackResponse(String service, String message) {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
