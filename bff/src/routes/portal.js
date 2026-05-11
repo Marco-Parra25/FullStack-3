@@ -29,14 +29,26 @@ router.get('/especialidad/:especialidad', async (req, res) => {
 
 router.get('/rut/:rut', async (req, res) => {
   try {
-    const lista = await service.listarTodos()
-    const ficha = lista.data.find(
-      p => p.pacienteRut === req.params.rut
-    )
-    const count = await service.contarEnEspera()
+    const [lista, count] = await Promise.all([
+      service.listarTodos(),
+      service.contarEnEspera(),
+    ])
+
+    const ficha = lista.data.find(p => p.pacienteRut === req.params.rut) || null
+
+    // Personas con mayor prioridad (número menor) o mismo nivel pero ingresadas antes
+    const posicionEnCola = ficha
+      ? lista.data.filter(p =>
+          p.estado === 'EN_ESPERA' &&
+          (p.prioridad < ficha.prioridad ||
+            (p.prioridad === ficha.prioridad && p.id < ficha.id))
+        ).length
+      : 0
+
     res.json({
-      ficha: ficha || null,
-      totalEnEspera: count.data.enEspera
+      ficha,
+      totalEnEspera: count.data.enEspera,
+      posicionEnCola,
     })
   } catch (error) {
     handleGatewayError(res, error, 'Error al buscar')

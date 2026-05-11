@@ -1,6 +1,0 @@
-spring:
-  application:
-    name: ms-api-gateway
-  cloud:
-    config:
-      enabled: false  # Deshabilitado para desarrollo, se habilitará para producción
