@@ -17,7 +17,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    axiosInstance.get('/api/bff/admin/lista')
+    axiosInstance.get('/admin/lista')
       .then(res => {
         setPacientes(res.data.pacientes)
         setTotalEnEspera(res.data.totalEnEspera)
@@ -26,7 +26,7 @@ export default function Dashboard() {
       .catch(() => setLoading(false))
 
     const intervalo = setInterval(() => {
-      axiosInstance.get('/api/bff/admin/lista')
+      axiosInstance.get('/admin/lista')
         .then(res => {
           setPacientes(res.data.pacientes)
           setTotalEnEspera(res.data.totalEnEspera)
