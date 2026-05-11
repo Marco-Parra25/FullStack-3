@@ -13,12 +13,7 @@ axiosInstance.interceptors.request.use(config => {
 })
 
 axiosInstance.interceptors.response.use(
-  response => {
-  if (response.data?.access_token) {
-    sessionStorage.setItem('token', response.data.access_token)
-  }
-  return response
-  },
+  response => response,
   error => {
     const status = error.response?.status
     if (status === 401) {

@@ -36,20 +36,14 @@ export default function PanelAdmin() {
       .then(res => {
         setPacientes(res.data.pacientes)
         setTotalEnEspera(res.data.totalEnEspera)
+        setPacientesDisponibles(res.data.pacientesDisponibles ?? [])
         setLoading(false)
       })
       .catch(() => setLoading(false))
   }
 
-  const cargarPacientes = () => {
-    axiosInstance.get('/api/bff/admin/pacientes')
-      .then(res => setPacientesDisponibles(res.data))
-      .catch(() => console.error('Error al cargar pacientes'))
-  }
-
 useEffect(() => {
   cargarLista()
-  cargarPacientes()
 
   const intervalo = setInterval(() => {
     cargarLista()
@@ -140,7 +134,7 @@ useEffect(() => {
           onChange={e => setForm({ ...form, especialidad: e.target.value })}
         />
 
-        <button className="btn-primary" onClick={registrar}>
+        <button type="button" className="btn-primary" onClick={registrar}>
           Registrar
         </button>
       </div>
@@ -172,13 +166,13 @@ useEffect(() => {
               <td><span className="badge-espera">{p.estado}</span></td>
               <td>{p.fechaIngreso}</td>
               <td style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                <button className="btn-primary" onClick={() => cambiarEstado(p.id, 'EN_ATENCION')}>
+                <button type="button" className="btn-primary" onClick={() => cambiarEstado(p.id, 'EN_ATENCION')}>
                   En atención
                 </button>
-                <button className="btn-primary" onClick={() => cambiarEstado(p.id, 'ATENDIDO')}>
+                <button type="button" className="btn-primary" onClick={() => cambiarEstado(p.id, 'ATENDIDO')}>
                   Atendido
                 </button>
-                <button className="btn-danger" onClick={() => cancelar(p.id)}>
+                <button type="button" className="btn-danger" onClick={() => cancelar(p.id)}>
                   Cancelar
                 </button>
               </td>
