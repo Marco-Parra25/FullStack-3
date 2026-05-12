@@ -162,8 +162,14 @@ useEffect(() => {
               <td>{p.prioridad}</td>
               <td><span className="badge-espera">{p.estado}</span></td>
               <td>{p.fechaIngreso}</td>
-              <td>
-                <button className="btn-danger" onClick={() => cancelar(p.id)}>
+              <td style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                <button type="button" className="btn-primary" onClick={() => cambiarEstado(p.id, 'ASIGNADO')}>
+                  En atención
+                </button>
+                <button type="button" className="btn-primary" onClick={() => cambiarEstado(p.id, 'ATENDIDO')}>
+                  Atendido
+                </button>
+                <button type="button" className="btn-danger" onClick={() => cancelar(p.id)}>
                   Cancelar
                 </button>
               </td>
