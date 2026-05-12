@@ -166,7 +166,7 @@ useEffect(() => {
               <td><span className="badge-espera">{p.estado}</span></td>
               <td>{p.fechaIngreso}</td>
               <td style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                <button type="button" className="btn-primary" onClick={() => cambiarEstado(p.id, 'EN_ATENCION')}>
+                <button type="button" className="btn-primary" onClick={() => cambiarEstado(p.id, 'ASIGNADO')}>
                   En atención
                 </button>
                 <button type="button" className="btn-primary" onClick={() => cambiarEstado(p.id, 'ATENDIDO')}>
