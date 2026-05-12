@@ -5,7 +5,15 @@ spring:
   application:
     name: ms-reasignacion
 
-  # Conexión a la Base de Datos PostgreSQL (Ajustado al Docker Compose)
+  # --- SEGURIDAD (OAUTH2) ---
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/rednorte-realm
+          jwk-set-uri: http://localhost:8080/realms/rednorte-realm/protocol/openid-connect/certs
+
+  # --- BASE DE DATOS ---
   datasource:
     url: jdbc:postgresql://localhost:5432/reasignacion_db
     username: rednorte
@@ -14,18 +22,17 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate # Flyway manda sobre la estructura
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
         format_sql: true
 
-  # Configuración de Flyway (Migraciones de BD)
   flyway:
     enabled: true
     baseline-on-migrate: true
 
-  # Mensajería Kafka
+  # --- MENSAJERÍA KAFKA ---
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
@@ -39,20 +46,20 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
-# --- NUEVA SECCIÓN: RESILIENCIA ---
+# --- RESILIENCIA ---
 resilience4j:
   circuitbreaker:
     instances:
       backendReasignacion:
         registerHealthIndicator: true
-        slidingWindowSize: 10              # Evalúa las últimas 10 llamadas
-        minimumNumberOfCalls: 5            # Mínimo de llamadas para empezar a calcular
-        failureRateThreshold: 50           # Abre el circuito si el 50% falla
-        waitDurationInOpenState: 10s       # Tiempo que espera antes de intentar reabrir (Half-open)
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
         permittedNumberOfCallsInHalfOpenState: 3
         slidingWindowType: COUNT_BASED
 
-# Configuración de Actuator para monitorear el Circuit Breaker
+# --- MONITOREO (ACTUATOR) ---
 management:
   endpoints:
     web:
