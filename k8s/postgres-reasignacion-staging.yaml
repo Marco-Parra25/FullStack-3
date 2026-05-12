@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-reasignacion
+  namespace: rednorte-staging
+  labels:
+    app: postgres-reasignacion
+    environment: staging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-reasignacion
+  template:
+    metadata:
+      labels:
+        app: postgres-reasignacion
+        environment: staging
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: reasignacion_db
+        - name: POSTGRES_USER
+          value: rednorte
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rednorte-secrets
+              key: postgres-password
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - rednorte
+            - -d
+            - reasignacion_db
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - rednorte
+            - -d
+            - reasignacion_db
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-reasignacion-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-reasignacion
+  namespace: rednorte-staging
+  labels:
+    app: postgres-reasignacion
+    environment: staging
+spec:
+  selector:
+    app: postgres-reasignacion
+  ports:
+  - port: 5432
+    targetPort: 5432
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-reasignacion-pvc
+  namespace: rednorte-staging
+  labels:
+    app: postgres-reasignacion
+    environment: staging
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: fast-ssd

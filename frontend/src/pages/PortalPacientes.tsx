@@ -23,7 +23,7 @@ export default function PortalPacientes() {
     if (!busquedaId) return
     setLoading(true)
     setBuscado(false)
-    axiosInstance.get(`/api/bff/portal/rut/${busquedaId}`)
+    axiosInstance.get(`/portal/rut/${busquedaId}`)
       .then(res => {
         setFicha(res.data.ficha)
         setTotalEnEspera(res.data.totalEnEspera)

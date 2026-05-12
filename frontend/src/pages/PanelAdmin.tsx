@@ -32,18 +32,24 @@ export default function PanelAdmin() {
   })
 
   const cargarLista = () => {
-    axiosInstance.get('/api/bff/admin/lista')
+    axiosInstance.get('/admin/lista')
       .then(res => {
         setPacientes(res.data.pacientes)
         setTotalEnEspera(res.data.totalEnEspera)
-        setPacientesDisponibles(res.data.pacientesDisponibles ?? [])
         setLoading(false)
       })
       .catch(() => setLoading(false))
   }
 
+  const cargarPacientes = () => {
+    axiosInstance.get('/admin/pacientes')
+      .then(res => setPacientesDisponibles(res.data))
+      .catch(() => console.error('Error al cargar pacientes'))
+  }
+
 useEffect(() => {
   cargarLista()
+  cargarPacientes()
 
   const intervalo = setInterval(() => {
     cargarLista()
@@ -57,7 +63,7 @@ useEffect(() => {
       alert('Completa todos los campos')
       return
     }
-    axiosInstance.post('/api/bff/admin/registrar', {
+    axiosInstance.post('/admin/registrar', {
       pacienteId: parseInt(form.pacienteId),
       tipoAtencion: form.tipoAtencion,
       especialidad: form.especialidad
@@ -78,21 +84,12 @@ useEffect(() => {
 
   const cancelar = (id: number) => {
     if (!confirm(`¿Cancelar cita del paciente ${id}?`)) return
-    axiosInstance.patch(`/api/bff/admin/cancelar/${id}`)
+    axiosInstance.patch(`/admin/cancelar/${id}`)
       .then(() => {
         alert('Cita cancelada')
         cargarLista()
       })
       .catch(() => alert('Error al cancelar'))
-  }
-
-  const cambiarEstado = (id: number, estado: string) => {
-    if (!confirm(`¿Cambiar estado del paciente ${id} a "${estado}"?`)) return
-    axiosInstance.patch(`/api/bff/admin/waitlist/${id}/estado`, { estado })
-      .then(() => {
-        cargarLista()
-      })
-      .catch(() => alert('Error al actualizar estado'))
   }
 
   if (loading) return <p>Cargando...</p>
@@ -134,7 +131,7 @@ useEffect(() => {
           onChange={e => setForm({ ...form, especialidad: e.target.value })}
         />
 
-        <button type="button" className="btn-primary" onClick={registrar}>
+        <button className="btn-primary" onClick={registrar}>
           Registrar
         </button>
       </div>

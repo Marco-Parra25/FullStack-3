@@ -23,9 +23,6 @@ module.exports = {
   cancelar: (id) =>
     axios.patch(`${BASE_URL}/waitlist/${id}/cancelar`),
 
-  actualizarEstado: (id, estado) =>
-    axios.patch(`${BASE_URL}/waitlist/${id}/estado`, { estado }),
-
   contarEnEspera: () =>
     axios.get(`${BASE_URL}/waitlist/count`),
 
