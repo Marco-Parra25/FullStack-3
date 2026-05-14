@@ -1,4 +1,6 @@
 const GATEWAY_ERRORS = {
+  401: { status: 401, error: 'Token ausente, inválido o expirado.' },
+  403: { status: 403, error: 'No tienes permisos para realizar esta acción.' },
   429: { status: 429, error: 'Demasiadas solicitudes. Intenta de nuevo en unos momentos.' },
   503: { status: 503, error: 'Servicio no disponible. El servicio está temporalmente fuera de línea.' },
   504: { status: 504, error: 'Tiempo de espera agotado. El servidor tardó demasiado en responder.' },

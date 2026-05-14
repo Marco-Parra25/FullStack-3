@@ -15,11 +15,6 @@ spring:
             - Path=/api/lista-espera/**
           filters:
             - StripPrefix=2
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 10
-                redis-rate-limiter.burstCapacity: 20
-                key-resolver: "#{@userKeyResolver}"
             - name: CircuitBreaker
               args:
                 name: listaEsperaCircuitBreaker
@@ -32,11 +27,6 @@ spring:
             - Path=/api/reasignacion/**
           filters:
             - StripPrefix=2
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 10
-                redis-rate-limiter.burstCapacity: 20
-                key-resolver: "#{@userKeyResolver}"
             - name: CircuitBreaker
               args:
                 name: reasignacionCircuitBreaker
@@ -49,11 +39,6 @@ spring:
             - Path=/api/notificaciones/**
           filters:
             - StripPrefix=2
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 10
-                redis-rate-limiter.burstCapacity: 20
-                key-resolver: "#{@userKeyResolver}"
             - name: CircuitBreaker
               args:
                 name: notificacionesCircuitBreaker
@@ -66,11 +51,6 @@ spring:
             - Path=/api/monitoreo/**
           filters:
             - StripPrefix=2
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 5
-                redis-rate-limiter.burstCapacity: 10
-                key-resolver: "#{@userKeyResolver}"
 
       globalcors:
         cors-configurations:
@@ -155,9 +135,9 @@ management:
 # Logging Configuration
 logging:
   level:
-    cl.rednorte.gateway: DEBUG
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.web.reactive: DEBUG
+    cl.rednorte.gateway: INFO
+    org.springframework.cloud.gateway: INFO
+    org.springframework.web.reactive: INFO
     reactor.netty: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

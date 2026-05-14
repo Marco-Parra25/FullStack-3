@@ -92,6 +92,15 @@ useEffect(() => {
       .catch(() => alert('Error al cancelar'))
   }
 
+  const cambiarEstado = (id: number, estado: string) => {
+    axiosInstance.patch(`/admin/estado/${id}`, { estado })
+      .then(() => {
+        alert('Estado actualizado')
+        cargarLista()
+      })
+      .catch(() => alert('Error al actualizar estado'))
+  }
+
   if (loading) return <p>Cargando...</p>
 
   return (

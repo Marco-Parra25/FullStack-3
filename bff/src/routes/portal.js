@@ -4,8 +4,9 @@ const { handleGatewayError } = require('../utils/gatewayError')
 
 router.get('/estado/:id', async (req, res) => {
   try {
-    const ficha = await service.obtenerPorId(req.params.id)
-    const count = await service.contarEnEspera()
+    const authorization = req.headers.authorization
+    const ficha = await service.obtenerPorId(req.params.id, authorization)
+    const count = await service.contarEnEspera(authorization)
     res.json({
       ficha: ficha.data,
       totalEnEspera: count.data.enEspera
@@ -17,7 +18,7 @@ router.get('/estado/:id', async (req, res) => {
 
 router.get('/especialidad/:especialidad', async (req, res) => {
   try {
-    const lista = await service.listarTodos()
+    const lista = await service.listarTodos(req.headers.authorization)
     const filtrada = lista.data.filter(
       p => p.especialidad.toLowerCase() === req.params.especialidad.toLowerCase()
     )
@@ -29,11 +30,12 @@ router.get('/especialidad/:especialidad', async (req, res) => {
 
 router.get('/rut/:rut', async (req, res) => {
   try {
-    const lista = await service.listarTodos()
+    const authorization = req.headers.authorization
+    const lista = await service.listarTodos(authorization)
     const ficha = lista.data.find(
       p => p.pacienteRut === req.params.rut
     )
-    const count = await service.contarEnEspera()
+    const count = await service.contarEnEspera(authorization)
     res.json({
       ficha: ficha || null,
       totalEnEspera: count.data.enEspera

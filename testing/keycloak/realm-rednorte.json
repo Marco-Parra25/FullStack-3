@@ -1,6 +1,7 @@
 {
   "realm": "rednorte",
   "enabled": true,
+  "sslRequired": "none",
   "roles": {
     "realm": [
       {
@@ -40,7 +41,11 @@
     {
       "username": "admin",
       "enabled": true,
+      "email": "admin@rednorte.local",
+      "firstName": "Admin",
+      "lastName": "RedNorte",
       "emailVerified": true,
+      "requiredActions": [],
       "credentials": [
         {
           "type": "password",
@@ -55,7 +60,11 @@
     {
       "username": "medico",
       "enabled": true,
+      "email": "medico@rednorte.local",
+      "firstName": "Medico",
+      "lastName": "RedNorte",
       "emailVerified": true,
+      "requiredActions": [],
       "credentials": [
         {
           "type": "password",
@@ -71,7 +80,11 @@
     {
       "username": "paciente",
       "enabled": true,
+      "email": "paciente@rednorte.local",
+      "firstName": "Paciente",
+      "lastName": "RedNorte",
       "emailVerified": true,
+      "requiredActions": [],
       "credentials": [
         {
           "type": "password",
