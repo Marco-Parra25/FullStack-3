@@ -2,6 +2,7 @@ package cl.rednorte.listaespera.infrastructure.adapter.input.rest;
 
 import cl.rednorte.listaespera.domain.model.Paciente;
 import cl.rednorte.listaespera.domain.port.input.PacienteUseCase;
+import cl.rednorte.listaespera.infrastructure.config.SecurityConfig;
 import cl.rednorte.listaespera.infrastructure.exception.PacienteAlreadyExistsException;
 import cl.rednorte.listaespera.infrastructure.exception.PacienteNotFoundException;
 import org.junit.jupiter.api.DisplayName;
@@ -9,19 +10,23 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(PacienteController.class)
+@Import(SecurityConfig.class)
 class PacienteControllerTest {
 
     @Autowired
@@ -29,6 +34,9 @@ class PacienteControllerTest {
 
     @MockBean
     private PacienteUseCase pacienteUseCase;
+
+    @MockBean
+    private JwtDecoder jwtDecoder;
 
     @Test
     @DisplayName("POST /api/v1/pacientes retorna 201 al registrar paciente")
@@ -49,6 +57,7 @@ class PacienteControllerTest {
                 """;
 
         mockMvc.perform(post("/api/v1/pacientes")
+                        .with(jwt())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated())
@@ -66,6 +75,7 @@ class PacienteControllerTest {
                 """;
 
         mockMvc.perform(post("/api/v1/pacientes")
+                        .with(jwt())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isConflict())
@@ -77,7 +87,8 @@ class PacienteControllerTest {
     void obtenerPacienteNoEncontrado() throws Exception {
         when(pacienteUseCase.obtenerPorId(99L)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/v1/pacientes/99"))
+        mockMvc.perform(get("/api/v1/pacientes/99")
+                        .with(jwt()))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("Paciente no encontrado"));
     }
@@ -94,7 +105,8 @@ class PacienteControllerTest {
 
         when(pacienteUseCase.obtenerPorId(1L)).thenReturn(Optional.of(paciente));
 
-        mockMvc.perform(get("/api/v1/pacientes/1"))
+        mockMvc.perform(get("/api/v1/pacientes/1")
+                        .with(jwt()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.nombre").value("Maria"));
     }

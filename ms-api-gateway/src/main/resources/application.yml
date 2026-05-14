@@ -16,7 +16,6 @@ spring:
             - Path=/api/lista-espera/**
           filters:
             - StripPrefix=2
-            - name: TokenRelay
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 10
@@ -34,7 +33,6 @@ spring:
             - Path=/api/reasignacion/**
           filters:
             - StripPrefix=2
-            - name: TokenRelay
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 10
@@ -52,7 +50,6 @@ spring:
             - Path=/api/notificaciones/**
           filters:
             - StripPrefix=2
-            - name: TokenRelay
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 15
@@ -70,7 +67,6 @@ spring:
             - Path=/api/monitoreo/prometheus/**
           filters:
             - StripPrefix=3
-            - name: TokenRelay
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 10
@@ -87,7 +83,6 @@ spring:
             - Path=/api/monitoreo/grafana/**
           filters:
             - StripPrefix=3
-            - name: TokenRelay
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 10
@@ -105,7 +100,6 @@ spring:
             - Path=/api/services/lista-espera/**
           filters:
             - StripPrefix=3
-            - name: TokenRelay
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 15
@@ -122,7 +116,6 @@ spring:
             - Path=/api/services/reasignacion/**
           filters:
             - StripPrefix=3
-            - name: TokenRelay
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 15
@@ -139,7 +132,6 @@ spring:
             - Path=/api/services/notificaciones/**
           filters:
             - StripPrefix=3
-            - name: TokenRelay
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 20

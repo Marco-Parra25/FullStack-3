@@ -11,6 +11,7 @@ Microservicio RedNorte para gestionar pacientes y registros de lista de espera.
 - PostgreSQL
 - Flyway
 - Spring Boot Actuator
+- Spring Security OAuth2 Resource Server
 - JUnit 5, Mockito, H2
 
 ## Configuracion
@@ -23,6 +24,8 @@ El servicio se configura por variables de entorno.
 | `SPRING_DATASOURCE_URL` | URL JDBC de PostgreSQL | `jdbc:postgresql://localhost:5432/lista_espera_db` |
 | `SPRING_DATASOURCE_USERNAME` | Usuario PostgreSQL | `rednorte` |
 | `SPRING_DATASOURCE_PASSWORD` | Password PostgreSQL | definir en `.env` |
+| `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI` | Issuer JWT de Keycloak | `http://keycloak:8080/realms/rednorte` |
+| `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI` | URL de certificados JWT de Keycloak | `http://keycloak:8080/realms/rednorte/protocol/openid-connect/certs` |
 | `SPRING_FLYWAY_ENABLED` | Ejecuta migraciones Flyway | `true` |
 | `SPRING_JPA_HIBERNATE_DDL_AUTO` | Validacion de esquema JPA | `validate` |
 
@@ -63,6 +66,9 @@ Servicios expuestos:
 - `GET /api/v1/waitlist/prioridad`
 - `GET /api/v1/waitlist/count`
 - `PATCH /api/v1/waitlist/{id}/cancelar`
+- `PATCH /api/v1/waitlist/{id}/estado`
+
+Todos los endpoints de negocio requieren `Authorization: Bearer <jwt>`. Los endpoints `/actuator/health/**` y `/actuator/info` quedan publicos para probes.
 
 ## Pruebas
 
@@ -83,5 +89,5 @@ Para desplegar este microservicio en Kubernetes, el responsable de infraestructu
 - Healthcheck general: `/actuator/health`.
 - Readiness probe sugerida: `/actuator/health/readiness`.
 - Liveness probe sugerida: `/actuator/health/liveness`.
-- Variables requeridas: `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`.
+- Variables requeridas: `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`, `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI`, `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI`.
 - Base de datos PostgreSQL con esquema creado por Flyway.

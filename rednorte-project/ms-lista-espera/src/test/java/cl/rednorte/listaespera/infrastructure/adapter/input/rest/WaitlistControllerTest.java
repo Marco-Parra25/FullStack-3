@@ -2,6 +2,7 @@ package cl.rednorte.listaespera.infrastructure.adapter.input.rest;
 
 import cl.rednorte.listaespera.domain.model.*;
 import cl.rednorte.listaespera.domain.port.input.WaitlistUseCase;
+import cl.rednorte.listaespera.infrastructure.config.SecurityConfig;
 import cl.rednorte.listaespera.infrastructure.exception.WaitlistItemNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -9,7 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
@@ -17,10 +20,12 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(WaitlistController.class)
+@Import(SecurityConfig.class)
 class WaitlistControllerTest {
 
     @Autowired
@@ -28,6 +33,9 @@ class WaitlistControllerTest {
 
     @MockBean
     private WaitlistUseCase waitlistUseCase;
+
+    @MockBean
+    private JwtDecoder jwtDecoder;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -53,6 +61,7 @@ class WaitlistControllerTest {
                 """;
 
         mockMvc.perform(post("/api/v1/waitlist")
+                        .with(jwt())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated())
@@ -67,7 +76,8 @@ class WaitlistControllerTest {
     void listarTodos() throws Exception {
         when(waitlistUseCase.listarTodos()).thenReturn(List.of(crearItemDePrueba()));
 
-        mockMvc.perform(get("/api/v1/waitlist"))
+        mockMvc.perform(get("/api/v1/waitlist")
+                        .with(jwt()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].especialidad").value("Cardiología"));
     }
@@ -77,7 +87,8 @@ class WaitlistControllerTest {
     void contarEnEspera() throws Exception {
         when(waitlistUseCase.contarEnEspera()).thenReturn(42000L);
 
-        mockMvc.perform(get("/api/v1/waitlist/count"))
+        mockMvc.perform(get("/api/v1/waitlist/count")
+                        .with(jwt()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.enEspera").value(42000));
     }
@@ -85,7 +96,8 @@ class WaitlistControllerTest {
     @Test
     @DisplayName("PATCH /api/v1/waitlist/{id}/cancelar retorna 204")
     void cancelar() throws Exception {
-        mockMvc.perform(patch("/api/v1/waitlist/1/cancelar"))
+        mockMvc.perform(patch("/api/v1/waitlist/1/cancelar")
+                        .with(jwt()))
                 .andExpect(status().isNoContent());
     }
 
@@ -106,6 +118,7 @@ class WaitlistControllerTest {
         when(waitlistUseCase.actualizarEstado(1L, EstadoEspera.ATENDIDO)).thenReturn(actualizado);
 
         mockMvc.perform(patch("/api/v1/waitlist/1/estado")
+                        .with(jwt())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"estado\": \"ATENDIDO\"}"))
                 .andExpect(status().isOk())
@@ -117,7 +130,8 @@ class WaitlistControllerTest {
     void obtenerPorId() throws Exception {
         when(waitlistUseCase.obtenerPorId(1L)).thenReturn(crearItemDePrueba());
 
-        mockMvc.perform(get("/api/v1/waitlist/1"))
+        mockMvc.perform(get("/api/v1/waitlist/1")
+                        .with(jwt()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.pacienteRut").value("12345678-9"));
     }
@@ -127,8 +141,16 @@ class WaitlistControllerTest {
     void obtenerPorIdNoEncontrado() throws Exception {
         when(waitlistUseCase.obtenerPorId(99L)).thenThrow(new WaitlistItemNotFoundException(99L));
 
-        mockMvc.perform(get("/api/v1/waitlist/99"))
+        mockMvc.perform(get("/api/v1/waitlist/99")
+                        .with(jwt()))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("Registro no encontrado"));
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/waitlist sin token retorna 401")
+    void listarTodosSinToken() throws Exception {
+        mockMvc.perform(get("/api/v1/waitlist"))
+                .andExpect(status().isUnauthorized());
     }
 }
