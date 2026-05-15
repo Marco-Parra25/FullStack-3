@@ -1,27 +1,24 @@
-# ─── Stage 1: Build (Maven oficial con Java 17, soporta ARM64) ────────────────
-FROM maven:3.9-eclipse-temurin-17 AS build
-
-WORKDIR /build
-
-COPY pom.xml .
-RUN mvn dependency:go-offline -q
-
-COPY src ./src
-RUN mvn clean package -DskipTests -q
-
-# ─── Stage 2: Runtime ─────────────────────────────────────────────────────────
-FROM eclipse-temurin:17-jre
-
+# Etapa 1: Compilación (Build)
+FROM maven:3.8.5-openjdk-17-slim AS build
 WORKDIR /app
 
-RUN groupadd -r spring && useradd -r -g spring spring
+# Copiar el pom.xml y descargar dependencias (esto optimiza la caché de Docker)
+COPY pom.xml .
+RUN mvn dependency:go-offline
 
-COPY --from=build /build/target/ms-reasignacion-*.jar app.jar
+# Copiar el código fuente y compilar el proyecto saltando los tests para acelerar el build
+COPY src ./src
+RUN mvn clean package -DskipTests
 
-USER spring
+# Etapa 2: Imagen de ejecución (Runtime)
+FROM openjdk:17-jdk-slim
+WORKDIR /app
 
+# Copiar el JAR generado desde la etapa de compilación
+COPY --from=build /app/target/*.jar app.jar
+
+# Exponer el puerto que configuraste en tu application.yml
 EXPOSE 8082
 
-ENV JAVA_OPTS=""
-
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+# Comando para ejecutar la aplicación
+ENTRYPOINT ["java", "-jar", "app.jar"]

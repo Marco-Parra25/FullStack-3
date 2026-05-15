@@ -5,28 +5,26 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ReasignacionTest {
 
     @Test
     void debeCrearReasignacionConConstructorVacio() {
-        // JPA e Hibernate necesitan un constructor vacío. Lo probamos aquí.
         Reasignacion reasignacion = new Reasignacion();
         assertNotNull(reasignacion);
     }
 
     @Test
     void debeCrearReasignacionConDatosYValidarGetters() {
-        // 1. ARRANGE: Preparamos los datos exactos
         UUID idEsperado = UUID.randomUUID();
         String rutEsperado = "12345678-9";
-        String especialidadEsperada = "Cardiología";
+        String especialidadEsperada = "Cardiologia";
         LocalDateTime fechaEsperada = LocalDateTime.now();
-        String estadoEsperado = "ASIGNADO";
+        EstadoReasignacion estadoEsperado = EstadoReasignacion.ASIGNADO;
         UUID cupoIdEsperado = UUID.randomUUID();
 
-        // 2. ACT: Instanciamos el objeto con tu constructor
         Reasignacion reasignacion = new Reasignacion(
                 idEsperado,
                 rutEsperado,
@@ -36,7 +34,6 @@ class ReasignacionTest {
                 cupoIdEsperado
         );
 
-        // 3. ASSERT: Validamos que tus getters devuelven la información correcta
         assertNotNull(reasignacion);
         assertEquals(idEsperado, reasignacion.getId());
         assertEquals(rutEsperado, reasignacion.getPacienteRut());
@@ -44,5 +41,41 @@ class ReasignacionTest {
         assertEquals(fechaEsperada, reasignacion.getFechaAsignacion());
         assertEquals(estadoEsperado, reasignacion.getEstado());
         assertEquals(cupoIdEsperado, reasignacion.getCupoOrigenId());
+    }
+
+    @Test
+    void crearPendiente_DebeIniciarConEstadoPendiente() {
+        UUID cupoId = UUID.randomUUID();
+
+        Reasignacion reasignacion = Reasignacion.crearPendiente(
+                "12345678-9",
+                "Cardiologia",
+                cupoId
+        );
+
+        assertNotNull(reasignacion.getId());
+        assertEquals("12345678-9", reasignacion.getPacienteRut());
+        assertEquals("Cardiologia", reasignacion.getEspecialidad());
+        assertEquals(EstadoReasignacion.PENDIENTE, reasignacion.getEstado());
+        assertEquals(cupoId, reasignacion.getCupoOrigenId());
+        assertNotNull(reasignacion.getFechaAsignacion());
+    }
+
+    @Test
+    void cambiosDeEstado_DebenActualizarEstadoDeReasignacion() {
+        Reasignacion reasignacion = Reasignacion.crearPendiente(
+                "12345678-9",
+                "Cardiologia",
+                UUID.randomUUID()
+        );
+
+        reasignacion.marcarAsignada();
+        assertEquals(EstadoReasignacion.ASIGNADO, reasignacion.getEstado());
+
+        reasignacion.marcarCompletada();
+        assertEquals(EstadoReasignacion.COMPLETADO, reasignacion.getEstado());
+
+        reasignacion.marcarFallida();
+        assertEquals(EstadoReasignacion.FALLIDA, reasignacion.getEstado());
     }
 }

@@ -5,19 +5,34 @@ spring:
   application:
     name: ms-reasignacion
 
-  # Conexión a la Base de Datos PostgreSQL
+  # --- SEGURIDAD (OAUTH2) ---
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/rednorte-realm
+          jwk-set-uri: http://localhost:8080/realms/rednorte-realm/protocol/openid-connect/certs
+
+  # --- BASE DE DATOS ---
   datasource:
-    url: jdbc:postgresql://localhost:5432/rednorte_db
-    username: postgres
-    password: postgres # Cambia esto si en tu docker-compose pusiste otra clave
+    url: jdbc:postgresql://localhost:5432/reasignacion_db
+    username: rednorte
+    password: rednorte123
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: validate # Flyway se encargará de crear las tablas, no Hibernate
+      ddl-auto: validate
     show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
 
-  # Conexión a Kafka
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+  # --- MENSAJERÍA KAFKA ---
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
@@ -31,7 +46,25 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
-  # Configuración de Flyway (Migraciones de BD)
-  flyway:
-    enabled: true
-    baseline-on-migrate: true
+# --- RESILIENCIA ---
+resilience4j:
+  circuitbreaker:
+    instances:
+      backendReasignacion:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowType: COUNT_BASED
+
+# --- MONITOREO (ACTUATOR) ---
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus
+  endpoint:
+    health:
+      show-details: always
