@@ -19,7 +19,7 @@ function decodeJwtPayload(token: string): Record<string, unknown> {
 
 function extractRole(payload: Record<string, unknown>): string {
   const realmAccess = payload.realm_access as { roles?: string[] } | undefined
-  const roles = realmAccess?.roles ?? []
+  const roles = (realmAccess?.roles ?? []).map(r => r.toLowerCase())
   if (roles.includes('admin')) return 'admin'
   if (roles.includes('medico')) return 'medico'
   return 'paciente'
