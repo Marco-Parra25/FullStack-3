@@ -129,18 +129,32 @@ jobs:
     needs: build-and-test
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
+    permissions:
+      contents: read
+      packages: write
     
     strategy:
       matrix:
-        service: 
-          - ms-lista-espera
-          - ms-reasignacion
-          - ms-api-gateway
-          - bff
+        include:
+          - service: ms-lista-espera
+            context: ./rednorte-project/ms-lista-espera
+            dockerfile: ./rednorte-project/ms-lista-espera/Dockerfile
+          - service: ms-reasignacion
+            context: ./ms-reasignacion
+            dockerfile: ./ms-reasignacion/Dockerfile
+          - service: ms-api-gateway
+            context: ./ms-api-gateway
+            dockerfile: ./ms-api-gateway/Dockerfile
+          - service: bff
+            context: ./bff
+            dockerfile: ./bff/Dockerfile
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
     
     - name: Log in to Container Registry
       uses: docker/login-action@v3
@@ -163,8 +177,8 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
-        context: .
-        file: ./${{ matrix.service }}/Dockerfile
+        context: ${{ matrix.context }}
+        file: ${{ matrix.dockerfile }}
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
@@ -175,16 +189,29 @@ jobs:
   security-scan:
     needs: build-and-test
     runs-on: ubuntu-latest
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY }}
+      SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
     
     - name: Run SonarCloud Scan
+      if: env.SONAR_TOKEN != '' && env.SONAR_PROJECT_KEY != '' && env.SONAR_ORGANIZATION != ''
       uses: SonarSource/sonarcloud-github-action@master
+      with:
+        args: >
+          -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
+          -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    - name: Skip SonarCloud Scan
+      if: env.SONAR_TOKEN == '' || env.SONAR_PROJECT_KEY == '' || env.SONAR_ORGANIZATION == ''
+      run: echo "Skipping SonarCloud scan because SONAR_TOKEN, SONAR_PROJECT_KEY or SONAR_ORGANIZATION is not configured."
 
   # ─── DEPLOY TO STAGING ───────────────────────────────────────
   deploy-staging:
