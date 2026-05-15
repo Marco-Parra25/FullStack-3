@@ -1,0 +1,28 @@
+{
+  "name": "bff",
+  "version": "1.0.0",
+  "description": "Backend For Frontend - Proyecto RedNorte",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "build": "echo 'Construcción de BFF completada (no requiere compilación)'",
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "keywords": [
+    "bff",
+    "rednorte",
+    "gateway"
+  ],
+  "author": "Dominique",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.15.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
