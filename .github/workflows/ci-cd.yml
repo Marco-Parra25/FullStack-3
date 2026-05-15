@@ -217,7 +217,7 @@ jobs:
   deploy-staging:
     needs: [build-and-push, security-scan]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/test-unificacion' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/test-unificacion' && github.event_name == 'push' && vars.ENABLE_STAGING_DEPLOY == 'true'
     environment: staging
     
     steps:
@@ -230,8 +230,14 @@ jobs:
         version: 'v1.28.0'
     
     - name: Configure kubectl
+      env:
+        KUBE_CONFIG_STAGING: ${{ secrets.KUBE_CONFIG_STAGING }}
       run: |
-        echo "${{ secrets.KUBE_CONFIG_STAGING }}" | base64 -d > kubeconfig
+        if [ -z "$KUBE_CONFIG_STAGING" ]; then
+          echo "KUBE_CONFIG_STAGING secret is not configured."
+          exit 1
+        fi
+        echo "$KUBE_CONFIG_STAGING" | base64 -d > kubeconfig
         export KUBECONFIG=kubeconfig
     
     - name: Deploy to Staging
@@ -291,7 +297,7 @@ jobs:
   deploy-production:
     needs: [build-and-push, security-scan]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && vars.ENABLE_PRODUCTION_DEPLOY == 'true'
     environment: production
     
     steps:
@@ -304,8 +310,14 @@ jobs:
         version: 'v1.28.0'
     
     - name: Configure kubectl
+      env:
+        KUBE_CONFIG_PROD: ${{ secrets.KUBE_CONFIG_PROD }}
       run: |
-        echo "${{ secrets.KUBE_CONFIG_PROD }}" | base64 -d > kubeconfig
+        if [ -z "$KUBE_CONFIG_PROD" ]; then
+          echo "KUBE_CONFIG_PROD secret is not configured."
+          exit 1
+        fi
+        echo "$KUBE_CONFIG_PROD" | base64 -d > kubeconfig
         export KUBECONFIG=kubeconfig
     
     - name: Deploy to Production
@@ -347,29 +359,37 @@ jobs:
     needs: [deploy-staging, deploy-production]
     runs-on: ubuntu-latest
     if: always()
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL || secrets.SLACK_WEBHOOK }}
     
     steps:
+    - name: Skip Slack Notification
+      if: env.SLACK_WEBHOOK_URL == '' || (needs.deploy-staging.result == 'skipped' && needs.deploy-production.result == 'skipped')
+      run: echo "Skipping Slack notification because webhook is not configured or no deployment ran."
+
     - name: Notify Slack on Success
-      if: needs.deploy-staging.result == 'success' || needs.deploy-production.result == 'success'
+      if: env.SLACK_WEBHOOK_URL != '' && (needs.deploy-staging.result == 'success' || needs.deploy-production.result == 'success')
       uses: 8398a7/action-slack@v3
+      env:
+        SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
       with:
         status: success
         channel: '#deployments'
-        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
-        message: |
+        text: |
           🚀 Deployment successful!
           Branch: ${{ github.ref_name }}
           Commit: ${{ github.sha }}
           Environment: ${{ needs.deploy-staging.result == 'success' && 'Staging' || 'Production' }}
     
     - name: Notify Slack on Failure
-      if: needs.deploy-staging.result == 'failure' || needs.deploy-production.result == 'failure'
+      if: env.SLACK_WEBHOOK_URL != '' && (needs.deploy-staging.result == 'failure' || needs.deploy-production.result == 'failure')
       uses: 8398a7/action-slack@v3
+      env:
+        SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
       with:
         status: failure
         channel: '#deployments'
-        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
-        message: |
+        text: |
           ❌ Deployment failed!
           Branch: ${{ github.ref_name }}
           Commit: ${{ github.sha }}
