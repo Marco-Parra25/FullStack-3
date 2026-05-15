@@ -25,7 +25,7 @@ public class ReasignacionPersistenceAdapter implements ReasignacionRepositoryPor
                 reasignacion.getPacienteRut(),
                 reasignacion.getEspecialidad(),
                 reasignacion.getFechaAsignacion(),
-                reasignacion.getEstado(),
+                reasignacion.getEstado().name(),
                 reasignacion.getCupoOrigenId()
         );
         jpaRepository.save(entity);
@@ -39,7 +39,7 @@ public class ReasignacionPersistenceAdapter implements ReasignacionRepositoryPor
                         entity.getPacienteRut(),
                         entity.getEspecialidad(),
                         entity.getFechaAsignacion(),
-                        entity.getEstado(),
+                        org.msreasignacion.domain.model.EstadoReasignacion.valueOf(entity.getEstado()),
                         entity.getCupoOrigenId()
                 ));
     }
