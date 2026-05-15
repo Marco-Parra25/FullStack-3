@@ -21,12 +21,12 @@ public class NotificacionController {
         // Mapeamos DTO a Evento (Igual que en el Consumer de Kafka)
         CupoAsignadoEvent evento = new CupoAsignadoEvent(
                 dto.getPacienteRut(),
-                dto.getEmail(),
                 dto.getTelefono(),
+                dto.getEmail(),
                 dto.getEspecialidad()
         );
 
         useCase.ejecutar(evento);
-        return ResponseEntity.ok("Notificación enviada exitosamente al RUT: " + dto.getPacienteRut());
+        return ResponseEntity.ok("Notificacion enviada exitosamente al RUT: " + dto.getPacienteRut());
     }
 }

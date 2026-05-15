@@ -19,26 +19,26 @@ public class CupoAsignadoConsumer {
     }
 
     @KafkaListener(topics = "cupo-asignado", groupId = "notificaciones-group")
-    public void consumir(CupoAsignadoDTO dto) { // 1. Recibe el DTO técnico de Kafka
+    public void consumir(CupoAsignadoDTO dto) { // 1. Recibe el DTO tecnico de Kafka
         try {
             log.info("===[ ADAPTADOR ENTRADA ]=== Mensaje recibido desde Kafka para: {}", dto.getPacienteRut());
 
             // 2. MAPEO: Convertimos el DTO (Infra) al Objeto de Dominio (Event)
-            // Esto protege tu lógica de negocio de cambios en el JSON de Kafka
+            // Esto protege tu logica de negocio de cambios en el JSON de Kafka
             CupoAsignadoEvent eventoDeDominio = new CupoAsignadoEvent(
                     dto.getPacienteRut(),
-                    dto.getEmail(),
                     dto.getTelefono(),
+                    dto.getEmail(),
                     dto.getEspecialidad()
             );
 
             // 3. Ejecutamos el caso de uso pasando el objeto de dominio
             useCase.ejecutar(eventoDeDominio);
 
-            log.info(">>> Flujo de notificación completado para RUT: {}", dto.getPacienteRut());
+            log.info(">>> Flujo de notificacion completado para RUT: {}", dto.getPacienteRut());
 
         } catch (Exception e) {
-            log.error("XXX Error crítico en el Adaptador de Entrada: {}", e.getMessage());
+            log.error("XXX Error critico en el Adaptador de Entrada: {}", e.getMessage());
         }
     }
 }

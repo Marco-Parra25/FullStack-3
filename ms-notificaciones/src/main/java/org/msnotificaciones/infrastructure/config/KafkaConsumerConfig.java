@@ -1,6 +1,9 @@
 package org.msnotificaciones.infrastructure.config;
 
-import org.msnotificaciones.domain.event.CupoAsignadoEvent;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.msnotificaciones.infrastructure.adapter.in.kafka.dto.CupoAsignadoDTO;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -8,8 +11,6 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
-import org.apache.kafka.common.serialization.StringDeserializer;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,15 +19,21 @@ import java.util.Map;
 @Configuration
 public class KafkaConsumerConfig {
 
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String bootstrapServers;
+
+    @Value("${spring.kafka.consumer.group-id}")
+    private String groupId;
+
     @Bean
-    public ConsumerFactory<String, CupoAsignadoEvent> consumerFactory() {
-        JsonDeserializer<CupoAsignadoEvent> deserializer = new JsonDeserializer<>(CupoAsignadoEvent.class);
-        deserializer.addTrustedPackages("*"); // Permite leer el evento aunque venga de otro MS
-        deserializer.setUseTypeHeaders(false); // Ignora los encabezados de tipo del emisor para evitar conflictos de paquetes
+    public ConsumerFactory<String, CupoAsignadoDTO> consumerFactory() {
+        JsonDeserializer<CupoAsignadoDTO> deserializer = new JsonDeserializer<>(CupoAsignadoDTO.class);
+        deserializer.addTrustedPackages("*");
+        deserializer.setUseTypeHeaders(false);
 
         Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "notificaciones-group");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
 
@@ -34,8 +41,8 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, CupoAsignadoEvent> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, CupoAsignadoEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, CupoAsignadoDTO> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, CupoAsignadoDTO> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;
     }
