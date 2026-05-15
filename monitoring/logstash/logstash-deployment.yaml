@@ -1,0 +1,146 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logstash
+  namespace: rednorte
+  labels:
+    app: logstash
+    component: logging
+    version: v8.11.0
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    kubernetes.io/description: "Logstash - Procesador de logs para RedNorte"
+
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+    rollingUpdate: null
+
+  selector:
+    matchLabels:
+      app: logstash
+
+  template:
+    metadata:
+      labels:
+        app: logstash
+        component: logging
+        version: v8.11.0
+      annotations:
+        prometheus.io/scrape: "false"
+
+    spec:
+      serviceAccountName: logstash
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+
+      initContainers:
+      # Esperar a que Elasticsearch esté listo
+      - name: wait-for-elasticsearch
+        image: busybox:1.35
+        command:
+        - sh
+        - -c
+        - |
+          echo "Waiting for Elasticsearch..."
+          until nc -z elasticsearch 9200; do
+            echo "Elasticsearch is unavailable - sleeping"
+            sleep 5
+          done
+          echo "Elasticsearch is up - starting Logstash"
+
+      containers:
+      - name: logstash
+        image: docker.elastic.co/logstash/logstash:8.11.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5044
+          name: beats
+          protocol: TCP
+        - containerPort: 5000
+          name: tcp
+          protocol: TCP
+        - containerPort: 9600
+          name: monitoring
+          protocol: TCP
+
+        env:
+        - name: LS_JAVA_OPTS
+          value: "-Xmx1g -Xms1g"
+        - name: ELASTICSEARCH_HOSTS
+          value: "http://elasticsearch:9200"
+        - name: LOG_LEVEL
+          value: "INFO"
+
+        # Volume mounts
+        volumeMounts:
+        - name: config-volume
+          mountPath: /usr/share/logstash/config/logstash.yml
+          subPath: logstash.yml
+          readOnly: true
+        - name: pipeline-volume
+          mountPath: /usr/share/logstash/pipeline/logstash.conf
+          subPath: logstash.conf
+          readOnly: true
+        - name: data-volume
+          mountPath: /usr/share/logstash/data
+
+        # Resources
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+
+        # Health checks
+        livenessProbe:
+          httpGet:
+            path: /_node/stats
+            port: 9600
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+
+        readinessProbe:
+          httpGet:
+            path: /_node/stats/pipelines
+            port: 9600
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+      # Volumes
+      volumes:
+      - name: config-volume
+        configMap:
+          name: logstash-config
+          items:
+          - key: logstash.yml
+            path: logstash.yml
+
+      - name: pipeline-volume
+        configMap:
+          name: logstash-pipeline
+          items:
+          - key: logstash.conf
+            path: logstash.conf
+
+      - name: data-volume
+        emptyDir: {}
+
+      # Node selector
+      nodeSelector:
+        kubernetes.io/os: linux
+
+      # Restart policy
+      restartPolicy: Always
+
+      # Termination grace period
+      terminationGracePeriodSeconds: 120

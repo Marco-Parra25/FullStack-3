@@ -1,0 +1,101 @@
+{
+  "realm": "rednorte",
+  "enabled": true,
+  "sslRequired": "none",
+  "roles": {
+    "realm": [
+      {
+        "name": "ADMIN"
+      },
+      {
+        "name": "MEDICO"
+      },
+      {
+        "name": "PACIENTE"
+      },
+      {
+        "name": "USER"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "rednorte-api",
+      "name": "RedNorte API",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "rednorte-secret",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "redirectUris": [
+        "*"
+      ],
+      "webOrigins": [
+        "*"
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "email": "admin@rednorte.local",
+      "firstName": "Admin",
+      "lastName": "RedNorte",
+      "emailVerified": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "username": "medico",
+      "enabled": true,
+      "email": "medico@rednorte.local",
+      "firstName": "Medico",
+      "lastName": "RedNorte",
+      "emailVerified": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "medico123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "MEDICO",
+        "USER"
+      ]
+    },
+    {
+      "username": "paciente",
+      "enabled": true,
+      "email": "paciente@rednorte.local",
+      "firstName": "Paciente",
+      "lastName": "RedNorte",
+      "emailVerified": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "paciente123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "PACIENTE",
+        "USER"
+      ]
+    }
+  ]
+}

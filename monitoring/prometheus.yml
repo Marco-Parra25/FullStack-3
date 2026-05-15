@@ -1,0 +1,28 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # MS Lista de Espera (Spring Boot Actuator)
+  - job_name: 'ms-lista-espera'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['ms-lista-espera:8081']
+
+  # MS API Gateway (Spring Boot Actuator)
+  - job_name: 'ms-api-gateway'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['ms-api-gateway:8080']
+
+  # Grafana
+  - job_name: 'grafana'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['grafana:3000']

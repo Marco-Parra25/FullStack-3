@@ -1,0 +1,70 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: ms-reasignacion
+
+  # --- SEGURIDAD (OAUTH2) ---
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/rednorte-realm
+          jwk-set-uri: http://localhost:8080/realms/rednorte-realm/protocol/openid-connect/certs
+
+  # --- BASE DE DATOS ---
+  datasource:
+    url: jdbc:postgresql://localhost:5432/reasignacion_db
+    username: rednorte
+    password: rednorte123
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+  # --- MENSAJERÍA KAFKA ---
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: reasignacion-grupo
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+# --- RESILIENCIA ---
+resilience4j:
+  circuitbreaker:
+    instances:
+      backendReasignacion:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowType: COUNT_BASED
+
+# --- MONITOREO (ACTUATOR) ---
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus
+  endpoint:
+    health:
+      show-details: always
