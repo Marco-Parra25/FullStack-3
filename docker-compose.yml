@@ -173,6 +173,13 @@ services:
         VITE_USE_MOCK_AUTH: "false"
         VITE_GATEWAY_URL: http://localhost:8080
         VITE_GRAFANA_URL: http://localhost:3002
+    container_name: frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - bff
+    networks:
+      - rednorte-network
 
   # ─── MONITOREO ────────────────────────────────────────────────────
   prometheus:
