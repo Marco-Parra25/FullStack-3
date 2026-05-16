@@ -36,6 +36,24 @@ const crearUsuario = async (usuario) => {
   })
 }
 
-module.exports = {
-  crearUsuario
+const asignarRol = async (userId, roleName) => {
+  const token = await adminToken()
+  const adminUrl = `${KEYCLOAK_URL}/admin/realms/${KEYCLOAK_REALM}`
+
+  const rolRes = await axios.get(`${adminUrl}/roles/${roleName}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+
+  await axios.post(
+    `${adminUrl}/users/${userId}/role-mappings/realm`,
+    [rolRes.data],
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    }
+  )
 }
+
+module.exports = { crearUsuario, asignarRol }

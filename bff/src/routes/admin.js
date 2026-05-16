@@ -1,11 +1,7 @@
 const router = require('express').Router()
-const crypto = require('crypto')
 const service = require('../services/listaEsperaService')
 const keycloakService = require('../services/keycloakService')
 const { handleGatewayError } = require('../utils/gatewayError')
-
-const generarClaveTemporal = () =>
-  crypto.randomBytes(6).toString('base64url').slice(0, 10)
 
 // Lista de espera
 router.get('/lista', async (req, res) => {
@@ -73,28 +69,32 @@ router.get('/pacientes', async (req, res) => {
 router.post('/pacientes', async (req, res) => {
   try {
     const paciente = await service.crearPaciente(req.body, req.headers.authorization)
-    const rut = req.body.rut || paciente.data.rut
+    const rut = req.body.rut
 
     if (!rut) {
-      return res.status(400).json({ error: 'RUT requerido para crear usuario en Keycloak' })
+      return res.status(201).json({ ...paciente.data, aviso: 'Paciente creado. No se pudo crear el usuario en Keycloak: RUT no proporcionado' })
     }
 
-    const claveTemporal = generarClaveTemporal()
-    await keycloakService.crearUsuario({
-      username: rut,
-      enabled: true,
-      firstName: req.body.nombre || paciente.data.nombre || '',
-      lastName: req.body.apellido || paciente.data.apellido || '',
-      credentials: [
-        {
-          type: 'password',
-          value: claveTemporal,
-          temporary: true
-        }
-      ]
-    })
+    const password = rut.replace(/[.\-]/g, '')
 
-    res.status(201).json({ ...paciente.data, claveTemporal })
+    try {
+      const createRes = await keycloakService.crearUsuario({
+        username: rut,
+        enabled: true,
+        firstName: req.body.nombre || paciente.data.nombre || '',
+        lastName: req.body.apellido || paciente.data.apellido || '',
+        credentials: [{ type: 'password', value: password, temporary: false }]
+      })
+
+      const location = createRes.headers?.location || ''
+      const userId = location.split('/').pop()
+      await keycloakService.asignarRol(userId, 'PACIENTE')
+    } catch (keycloakError) {
+      const detalle = keycloakError.response?.data?.errorMessage || keycloakError.message || 'error desconocido'
+      return res.status(201).json({ ...paciente.data, aviso: `Paciente creado. No se pudo crear el usuario en Keycloak: ${detalle}` })
+    }
+
+    res.status(201).json(paciente.data)
   } catch (error) {
     if (error.response?.status === 400) {
       return res.status(400).json({ error: 'Datos inválidos', detalle: error.response.data })
