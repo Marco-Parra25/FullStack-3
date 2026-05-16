@@ -24,6 +24,11 @@ export default function PanelAdmin() {
   const [totalEnEspera, setTotalEnEspera] = useState<number>(0)
   const [loading, setLoading] = useState(true)
   const [pacientesDisponibles, setPacientesDisponibles] = useState<PacienteDisponible[]>([])
+  const [filtros, setFiltros] = useState({
+    nombre: '',
+    rut: '',
+    especialidad: ''
+  })
 
   const [form, setForm] = useState({
     pacienteId: '',
@@ -85,8 +90,9 @@ useEffect(() => {
   const cancelar = (id: number) => {
     if (!confirm(`¿Cancelar cita del paciente ${id}?`)) return
     axiosInstance.patch(`/admin/cancelar/${id}`)
-      .then(() => {
-        alert('Cita cancelada')
+      .then(res => {
+        const rut = res.data?.rut || id
+        alert(`Notificación enviada al paciente ${rut}`)
         cargarLista()
       })
       .catch(() => alert('Error al cancelar'))
@@ -100,6 +106,18 @@ useEffect(() => {
       })
       .catch(() => alert('Error al actualizar estado'))
   }
+
+  const pacientesFiltrados = pacientes.filter(p => {
+    const nombre = p.pacienteNombre.toLowerCase()
+    const rut = p.pacienteRut.toLowerCase()
+    const especialidad = p.especialidad.toLowerCase()
+
+    return (
+      nombre.includes(filtros.nombre.toLowerCase()) &&
+      rut.includes(filtros.rut.toLowerCase()) &&
+      especialidad.includes(filtros.especialidad.toLowerCase())
+    )
+  })
 
   if (loading) return <p>Cargando...</p>
 
@@ -146,6 +164,26 @@ useEffect(() => {
       </div>
 
       <h2>Lista de espera</h2>
+      <div className="filter-row" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+        <input
+          type="text"
+          placeholder="Filtrar por nombre"
+          value={filtros.nombre}
+          onChange={e => setFiltros({ ...filtros, nombre: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Filtrar por RUT"
+          value={filtros.rut}
+          onChange={e => setFiltros({ ...filtros, rut: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Filtrar por especialidad"
+          value={filtros.especialidad}
+          onChange={e => setFiltros({ ...filtros, especialidad: e.target.value })}
+        />
+      </div>
       <table>
         <thead>
           <tr>
@@ -161,7 +199,7 @@ useEffect(() => {
           </tr>
         </thead>
         <tbody>
-          {pacientes.map(p => (
+          {pacientesFiltrados.map(p => (
             <tr key={p.id}>
               <td>{p.id}</td>
               <td>{p.pacienteNombre}</td>

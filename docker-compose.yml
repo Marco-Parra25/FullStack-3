@@ -127,13 +127,32 @@ services:
     networks:
       - rednorte-network
 
+  ms-notificaciones:
+    build:
+      context: ./ms-notificaciones
+      dockerfile: Dockerfile
+    container_name: ms-notificaciones
+    ports:
+      - "8083:8083"
+    environment:
+      SERVER_PORT: 8083
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/rednorte
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/rednorte/protocol/openid-connect/certs
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: on-failure
+    networks:
+      - rednorte-network
+
   ms-api-gateway:
     build:
       context: ./ms-api-gateway
       dockerfile: Dockerfile
     container_name: ms-api-gateway
     ports:
-      - "8080:8080"
+      - "8088:8080"
     environment:
       SERVER_PORT: 8080
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/rednorte
@@ -205,6 +224,9 @@ services:
       - "3002:3000"
     environment:
       GF_SECURITY_ADMIN_PASSWORD: admin123
+      GF_SECURITY_ALLOW_EMBEDDING: "true"
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: viewer
     volumes:
       - grafana-data:/var/lib/grafana
     depends_on:
