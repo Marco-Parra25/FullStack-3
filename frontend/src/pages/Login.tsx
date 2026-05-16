@@ -48,44 +48,34 @@ export default function Login({ setRol }: Props) {
     }
   }
 
-  const loginKeycloak = async () => {
-    setError('')
-    setLoading(true)
-    try {
-      const keycloakUrl = import.meta.env.VITE_KEYCLOAK_URL
-      const clientId = import.meta.env.VITE_KEYCLOAK_CLIENT_ID
-      const res = await fetch(
-        `${keycloakUrl}/realms/rednorte/protocol/openid-connect/token`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({
-            grant_type: 'password',
-            client_id: clientId,
-            username: usuario,
-            password,
-          }),
-        }
-      )
-      if (!res.ok) {
-        setError('Usuario o contraseña incorrectos')
-        return
-      }
-      const data = await res.json()
-      sessionStorage.setItem('token', data.access_token)
-      const payload = decodeJwtPayload(data.access_token)
-      const rol = extractRole(payload)
-      setRol(rol)
-      if (rol === 'admin') navigate('/admin')
-      else if (rol === 'medico') navigate('/dashboard')
-      else navigate('/portal')
-    } catch {
-      setError('No se pudo conectar con el servidor de autenticación')
-    } finally {
-      setLoading(false)
+const loginKeycloak = async () => {
+  setError('')
+  setLoading(true)
+  try {
+    const bffUrl = import.meta.env.VITE_KEYCLOAK_URL
+    const res = await fetch(`${bffUrl}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: usuario, password }),
+    })
+    if (!res.ok) {
+      setError('Usuario o contraseña incorrectos')
+      return
     }
+    const data = await res.json()
+    sessionStorage.setItem('token', data.token)
+    const payload = decodeJwtPayload(data.token)
+    const rol = extractRole(payload)
+    setRol(rol)
+    if (rol === 'admin') navigate('/admin')
+    else if (rol === 'medico') navigate('/dashboard')
+    else navigate('/portal')
+  } catch {
+    setError('No se pudo conectar con el servidor de autenticación')
+  } finally {
+    setLoading(false)
   }
-
+}
   const login = () => {
     if (useMock) loginMock()
     else loginKeycloak()
