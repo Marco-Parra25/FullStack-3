@@ -90,9 +90,8 @@ useEffect(() => {
   const cancelar = (id: number) => {
     if (!confirm(`¿Cancelar cita del paciente ${id}?`)) return
     axiosInstance.patch(`/admin/cancelar/${id}`)
-      .then(res => {
-        const rut = res.data?.rut || id
-        alert(`Notificación enviada al paciente ${rut}`)
+      .then(() => {
+        alert('Cita cancelada exitosamente. El sistema reasignará y notificará al paciente automáticamente.')
         cargarLista()
       })
       .catch(() => alert('Error al cancelar'))
