@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import axiosInstance from '../services/axiosInstance'
+import Footer from '../components/Footer'
 
 interface Ficha {
   id: number
@@ -12,70 +13,89 @@ interface Ficha {
   fechaIngreso: string
 }
 
+function getRutFromToken(): string | null {
+  const token = sessionStorage.getItem('token')
+  if (!token) return null
+  try {
+    const parts = token.split('.')
+    if (parts.length === 3) {
+      const decoded = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')))
+      return decoded.preferred_username ?? decoded.sub ?? null
+    } else {
+      const decoded = JSON.parse(atob(token))
+      return decoded.sub ?? null
+    }
+  } catch {
+    return null
+  }
+}
+
 export default function PortalPacientes() {
   const [ficha, setFicha] = useState<Ficha | null>(null)
   const [totalEnEspera, setTotalEnEspera] = useState<number>(0)
-  const [loading, setLoading] = useState(false)
-  const [busquedaId, setBusquedaId] = useState('')
-  const [buscado, setBuscado] = useState(false)
+  const [pacientesEnEspecialidad, setPacientesEnEspecialidad] = useState<number>(0)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const buscarPaciente = () => {
-    if (!busquedaId) return
-    setLoading(true)
-    setBuscado(false)
-    axiosInstance.get(`/portal/rut/${busquedaId}`)
+  useEffect(() => {
+    const rut = getRutFromToken()
+    if (!rut) {
+      setError('No se pudo obtener el RUT desde la sesión. Intenta iniciar sesión nuevamente.')
+      setLoading(false)
+      return
+    }
+
+    axiosInstance.get(`/portal/rut/${rut}`)
       .then(res => {
-        setFicha(res.data.ficha)
-        setTotalEnEspera(res.data.totalEnEspera)
-        setLoading(false)
-        setBuscado(true)
+        const { ficha: fichaData, totalEnEspera: total } = res.data
+        if (!fichaData) {
+          setError('No tienes citas registradas en lista de espera actualmente.')
+          return Promise.resolve(null)
+        }
+        setFicha(fichaData)
+        setTotalEnEspera(total)
+        return Promise.all([
+          axiosInstance.get(`/portal/especialidad/${fichaData.especialidad}`)
+        ])
       })
-      .catch(() => {
-        setFicha(null)
-        setLoading(false)
-        setBuscado(true)
+      .then(results => {
+        if (!results) return
+        const [especialidadRes] = results
+        setPacientesEnEspecialidad(especialidadRes.data.length)
       })
-  }
+      .catch(() => setError('No se pudo cargar tu información. Intenta más tarde.'))
+      .finally(() => setLoading(false))
+  }, [])
 
   return (
-    <div className="page">
-      <h1>Portal Pacientes — RedNorte</h1>
+    <>
+      <div className="page">
+        <h1>Portal Pacientes — RedNorte</h1>
 
-      <div className="form-row" style={{ marginTop: '1rem' }}>
-        <input
-          type="text"
-          placeholder="Ingresa tu RUT (ej: 12345678-9)"
-          value={busquedaId}
-          onChange={e => setBusquedaId(e.target.value)}
-          style={{ width: '250px' }}
-        />
-        <button className="btn-primary" onClick={buscarPaciente}>
-          Buscar
-        </button>
+        {loading && <p>Cargando...</p>}
+
+        {error && !loading && (
+          <p className="portal-error">{error}</p>
+        )}
+
+        {ficha && (
+          <div className="card portal-ficha">
+            <h2>Mi estado en lista de espera</h2>
+            <p><strong>Nombre:</strong> {ficha.pacienteNombre}</p>
+            <p><strong>RUT:</strong> {ficha.pacienteRut}</p>
+            <p><strong>Especialidad:</strong> {ficha.especialidad}</p>
+            <p><strong>Tipo atención:</strong> {ficha.tipoAtencion}</p>
+            <p><strong>Prioridad:</strong> {ficha.prioridad}</p>
+            <p><strong>Estado:</strong> <span className="badge-espera">{ficha.estado}</span></p>
+            <p><strong>Fecha ingreso:</strong> {ficha.fechaIngreso}</p>
+            <hr className="portal-divider" />
+            <p><strong>Total pacientes en espera:</strong> {totalEnEspera}</p>
+            <p><strong>Pacientes en tu especialidad:</strong> {pacientesEnEspecialidad}</p>
+          </div>
+        )}
       </div>
 
-      {loading && <p>Cargando...</p>}
-
-      {ficha && (
-        <div className="card" style={{ marginTop: '1.5rem', maxWidth: '500px' }}>
-          <h2>Mi estado en lista de espera</h2>
-          <p><strong>Nombre:</strong> {ficha.pacienteNombre}</p>
-          <p><strong>RUT:</strong> {ficha.pacienteRut}</p>
-          <p><strong>Especialidad:</strong> {ficha.especialidad}</p>
-          <p><strong>Tipo atención:</strong> {ficha.tipoAtencion}</p>
-          <p><strong>Prioridad:</strong> {ficha.prioridad}</p>
-          <p><strong>Estado:</strong> <span className="badge-espera">{ficha.estado}</span></p>
-          <p><strong>Fecha ingreso:</strong> {ficha.fechaIngreso}</p>
-          <hr style={{ margin: '1rem 0', borderColor: '#e8edf2' }} />
-          <p><strong>Total pacientes en espera:</strong> {totalEnEspera}</p>
-        </div>
-      )}
-
-      {!loading && !ficha && buscado && (
-        <p style={{ marginTop: '1rem', color: '#E24B4A' }}>
-          No se encontró información para ese RUT
-        </p>
-      )}
-    </div>
+      <Footer />
+    </>
   )
 }

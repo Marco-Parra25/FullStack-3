@@ -56,4 +56,14 @@ const asignarRol = async (userId, roleName) => {
   )
 }
 
-module.exports = { crearUsuario, asignarRol }
+const limpiarAccionesRequeridas = async (userId) => {
+  const token = await adminToken()
+  const adminUrl = `${KEYCLOAK_URL}/admin/realms/${KEYCLOAK_REALM}`
+  await axios.put(
+    `${adminUrl}/users/${userId}`,
+    { requiredActions: [], emailVerified: true },
+    { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
+  )
+}
+
+module.exports = { crearUsuario, asignarRol, limpiarAccionesRequeridas }

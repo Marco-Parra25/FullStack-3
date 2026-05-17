@@ -81,16 +81,24 @@ router.post('/pacientes', async (req, res) => {
       const createRes = await keycloakService.crearUsuario({
         username: rut,
         enabled: true,
+        emailVerified: true,
+        requiredActions: [],
         firstName: req.body.nombre || paciente.data.nombre || '',
         lastName: req.body.apellido || paciente.data.apellido || '',
+        email: req.body.email || '',
         credentials: [{ type: 'password', value: password, temporary: false }]
       })
 
       const location = createRes.headers?.location || ''
       const userId = location.split('/').pop()
+      console.log('userId extraído:', userId)
       await keycloakService.asignarRol(userId, 'PACIENTE')
+      console.log('Limpiando acciones requeridas para userId:', userId)
+      await keycloakService.limpiarAccionesRequeridas(userId)
+      console.log('Acciones limpiadas correctamente')
     } catch (keycloakError) {
       const detalle = keycloakError.response?.data?.errorMessage || keycloakError.message || 'error desconocido'
+      console.error('Keycloak error detalle:', JSON.stringify(keycloakError.response?.data), keycloakError.message)
       return res.status(201).json({ ...paciente.data, aviso: `Paciente creado. No se pudo crear el usuario en Keycloak: ${detalle}` })
     }
 

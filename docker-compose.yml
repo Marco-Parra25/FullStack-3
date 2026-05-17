@@ -70,6 +70,7 @@ services:
       - "8090:8080"
     volumes:
       - ./testing/keycloak/realm-rednorte.json:/opt/keycloak/data/import/realm-rednorte.json:ro
+      - keycloak-data:/opt/keycloak/data
     networks:
       - rednorte-network
 
@@ -193,6 +194,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
+        VITE_BFF_URL: http://localhost:3001
         VITE_KEYCLOAK_URL: http://localhost:3001
         VITE_KEYCLOAK_CLIENT_ID: rednorte-api
         VITE_USE_MOCK_AUTH: "false"
@@ -240,3 +242,4 @@ networks:
 
 volumes:
   grafana-data:
+  keycloak-data:

@@ -18,6 +18,7 @@ router.post('/login', async (req, res) => {
     )
     res.json({ token: response.data.access_token })
   } catch (error) {
+    console.error('Login error:', error.response?.data)
     res.status(401).json({ error: 'Credenciales inválidas' })
   }
 })
