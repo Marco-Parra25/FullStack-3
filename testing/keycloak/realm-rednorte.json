@@ -390,6 +390,14 @@
       ]
     }
   ],
+  "clientScopeMappings": {
+    "realm-management": [
+      {
+        "client": "rednorte-api",
+        "roles": ["realm-admin"]
+      }
+    ]
+  },
   "users": [
     {
       "username": "admin",

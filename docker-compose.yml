@@ -74,6 +74,19 @@ services:
     networks:
       - rednorte-network
 
+  keycloak-setup:
+    image: curlimages/curl:latest
+    container_name: keycloak-setup
+    depends_on:
+      keycloak:
+        condition: service_started
+    entrypoint: ["/bin/sh", "/scripts/assign-realm-admin.sh"]
+    volumes:
+      - ./testing/keycloak/assign-realm-admin.sh:/scripts/assign-realm-admin.sh:ro
+    networks:
+      - rednorte-network
+    restart: "no"
+
   # ─── MICROSERVICIOS ───────────────────────────────────────────────
   ms-lista-espera:
     build:
