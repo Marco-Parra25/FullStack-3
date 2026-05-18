@@ -33,6 +33,7 @@ function getRutFromToken(): string | null {
 export default function PortalPacientes() {
   const [ficha, setFicha] = useState<Ficha | null>(null)
   const [totalEnEspera, setTotalEnEspera] = useState<number>(0)
+  const [posicionEnEspera, setPosicionEnEspera] = useState<number | null>(null)
   const [pacientesEnEspecialidad, setPacientesEnEspecialidad] = useState<number>(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -47,21 +48,15 @@ export default function PortalPacientes() {
 
     axiosInstance.get(`/portal/rut/${rut}`)
       .then(res => {
-        const { ficha: fichaData, totalEnEspera: total } = res.data
+        const { ficha: fichaData, posicionEnEspera: posicion, totalEnEspera: total, pacientesEnEspecialidad: enEspecialidad } = res.data
         if (!fichaData) {
           setError('No tienes citas registradas en lista de espera actualmente.')
-          return Promise.resolve(null)
+          return
         }
         setFicha(fichaData)
+        setPosicionEnEspera(posicion)
         setTotalEnEspera(total)
-        return Promise.all([
-          axiosInstance.get(`/portal/especialidad/${fichaData.especialidad}`)
-        ])
-      })
-      .then(results => {
-        if (!results) return
-        const [especialidadRes] = results
-        setPacientesEnEspecialidad(especialidadRes.data.length)
+        setPacientesEnEspecialidad(enEspecialidad)
       })
       .catch(() => setError('No se pudo cargar tu información. Intenta más tarde.'))
       .finally(() => setLoading(false))
@@ -89,6 +84,7 @@ export default function PortalPacientes() {
             <p><strong>Estado:</strong> <span className="badge-espera">{ficha.estado}</span></p>
             <p><strong>Fecha ingreso:</strong> {ficha.fechaIngreso}</p>
             <hr className="portal-divider" />
+            <p><strong>Tu posición en lista de espera:</strong> {posicionEnEspera ?? '—'}</p>
             <p><strong>Total pacientes en espera:</strong> {totalEnEspera}</p>
             <p><strong>Pacientes en tu especialidad:</strong> {pacientesEnEspecialidad}</p>
           </div>

@@ -93,6 +93,7 @@ router.post('/pacientes', async (req, res) => {
       const userId = location.split('/').pop()
       console.log('userId extraído:', userId)
       await keycloakService.asignarRol(userId, 'PACIENTE')
+      await keycloakService.asignarRol(userId, 'USER')
       console.log('Limpiando acciones requeridas para userId:', userId)
       await keycloakService.limpiarAccionesRequeridas(userId)
       console.log('Acciones limpiadas correctamente')

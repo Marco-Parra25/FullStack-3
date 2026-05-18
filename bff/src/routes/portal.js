@@ -31,15 +31,20 @@ router.get('/especialidad/:especialidad', async (req, res) => {
 router.get('/rut/:rut', async (req, res) => {
   try {
     const authorization = req.headers.authorization
-    const lista = await service.listarTodos(authorization)
-    const ficha = lista.data.find(
-      p => p.pacienteRut === req.params.rut
-    )
-    const count = await service.contarEnEspera(authorization)
-    res.json({
-      ficha: ficha || null,
-      totalEnEspera: count.data.enEspera
-    })
+    const [listaRes, countRes] = await Promise.all([
+      service.listarTodos(authorization),
+      service.contarEnEspera(authorization)
+    ])
+    const lista = listaRes.data
+    const ficha = lista.find(p => p.pacienteRut === req.params.rut) || null
+    const listaOrdenada = [...lista].sort((a, b) => a.prioridad - b.prioridad)
+    const posicion = listaOrdenada.findIndex(p => p.pacienteRut === req.params.rut)
+    const posicionEnEspera = posicion !== -1 ? posicion + 1 : null
+    const totalEnEspera = countRes.data.enEspera
+    const pacientesEnEspecialidad = ficha
+      ? lista.filter(p => p.especialidad.toLowerCase() === ficha.especialidad.toLowerCase()).length
+      : 0
+    res.json({ ficha, posicionEnEspera, totalEnEspera, pacientesEnEspecialidad })
   } catch (error) {
     handleGatewayError(res, error, 'Error al buscar')
   }
