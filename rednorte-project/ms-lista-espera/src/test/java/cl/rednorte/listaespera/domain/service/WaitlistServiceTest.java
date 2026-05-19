@@ -1,6 +1,7 @@
 package cl.rednorte.listaespera.domain.service;
 
 import cl.rednorte.listaespera.domain.model.*;
+import cl.rednorte.listaespera.domain.port.output.CupoLiberadoPublisherPort;
 import cl.rednorte.listaespera.domain.port.output.PacienteRepository;
 import cl.rednorte.listaespera.domain.port.output.WaitlistRepository;
 import cl.rednorte.listaespera.infrastructure.exception.PacienteNotFoundException;
@@ -29,17 +30,22 @@ class WaitlistServiceTest {
     @Mock
     private PacienteRepository pacienteRepository;
 
+    @Mock
+    private CupoLiberadoPublisherPort cupoLiberadoPublisherPort;
+
     private WaitlistService service;
     private Paciente paciente;
 
     @BeforeEach
     void setUp() {
-        service = new WaitlistService(waitlistRepository, pacienteRepository);
+        service = new WaitlistService(waitlistRepository, pacienteRepository, cupoLiberadoPublisherPort);
         paciente = Paciente.builder()
                 .id(1L)
                 .rut("12345678-9")
                 .nombre("María")
                 .apellido("González")
+                .telefono("+56912345678")
+                .email("maria@email.cl")
                 .build();
     }
 
@@ -100,6 +106,9 @@ class WaitlistServiceTest {
 
         assertEquals(EstadoEspera.CANCELADO, item.getEstado());
         verify(waitlistRepository).save(item);
+        verify(cupoLiberadoPublisherPort).publicar(argThat(evento ->
+                evento.cupoId().equals("1") && evento.especialidad().equals("Cardiología")
+        ));
     }
 
     @Test
@@ -187,5 +196,30 @@ class WaitlistServiceTest {
 
         assertEquals(2, result.getPrioridad());
         assertEquals(TipoAtencion.CIRUGIA, result.getTipoAtencion());
+    }
+
+    @Test
+    @DisplayName("Asignar siguiente paciente marca item como ASIGNADO")
+    void asignarSiguientePaciente() {
+        WaitlistItem item = WaitlistItem.builder()
+                .id(10L)
+                .paciente(paciente)
+                .tipoAtencion(TipoAtencion.CONSULTA)
+                .especialidad("Cardiología")
+                .prioridad(3)
+                .estado(EstadoEspera.EN_ESPERA)
+                .fechaIngreso(LocalDate.now())
+                .build();
+
+        when(waitlistRepository.findSiguienteDisponible("Cardiología")).thenReturn(Optional.of(item));
+        when(waitlistRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Optional<Paciente> result = service.asignarSiguientePaciente("Cardiología");
+
+        assertTrue(result.isPresent());
+        assertEquals("12345678-9", result.get().getRut());
+        assertEquals(EstadoEspera.ASIGNADO, item.getEstado());
+        assertNotNull(item.getFechaAsignacion());
+        verify(waitlistRepository).save(item);
     }
 }

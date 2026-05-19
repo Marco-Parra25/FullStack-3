@@ -17,5 +17,7 @@ public interface WaitlistRepository {
 
     List<WaitlistItem> findAllOrderByPrioridad();
 
+    Optional<WaitlistItem> findSiguienteDisponible(String especialidad);
+
     long countEnEspera();
 }

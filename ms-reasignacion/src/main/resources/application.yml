@@ -42,9 +42,23 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: org.msreasignacion.domain.event.CupoLiberadoEvent
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+
+rednorte:
+  services:
+    lista-espera:
+      base-url: ${LISTA_ESPERA_BASE_URL:http://localhost:8081}
+      internal-token: ${REDNORTE_INTERNAL_TOKEN:dev-internal-token}
+  kafka:
+    topics:
+      cupo-asignado: ${TOPIC_CUPO_ASIGNADO:cupo-asignado}
+    send-timeout-ms: ${KAFKA_SEND_TIMEOUT_MS:5000}
 
 # --- RESILIENCIA ---
 resilience4j:

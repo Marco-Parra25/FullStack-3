@@ -38,8 +38,9 @@ services:
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
@@ -47,12 +48,21 @@ services:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     ports:
-      - "9092:9092"
+      - "9092:29092"
     healthcheck:
       test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:9092 --list"]
       interval: 15s
       timeout: 10s
       retries: 10
+    networks:
+      - rednorte-network
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
     networks:
       - rednorte-network
 
@@ -100,6 +110,8 @@ services:
       SPRING_DATASOURCE_USERNAME: rednorte
       SPRING_DATASOURCE_PASSWORD: rednorte123
       SPRING_FLYWAY_ENABLED: "true"
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      REDNORTE_INTERNAL_TOKEN: dev-internal-token
       SERVER_PORT: 8081
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/rednorte
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/rednorte/protocol/openid-connect/certs
@@ -107,6 +119,8 @@ services:
       keycloak:
         condition: service_started
       postgres-lista-espera:
+        condition: service_healthy
+      kafka:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8081/actuator/health || exit 1"]
@@ -129,6 +143,8 @@ services:
       SPRING_DATASOURCE_USERNAME: rednorte
       SPRING_DATASOURCE_PASSWORD: rednorte123
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LISTA_ESPERA_BASE_URL: http://ms-lista-espera:8081
+      REDNORTE_INTERNAL_TOKEN: dev-internal-token
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/rednorte
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/rednorte/protocol/openid-connect/certs
       SERVER_PORT: 8082
@@ -151,6 +167,14 @@ services:
     environment:
       SERVER_PORT: 8083
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_MAIL_HOST: ${SPRING_MAIL_HOST:-smtp.gmail.com}
+      SPRING_MAIL_PORT: ${SPRING_MAIL_PORT:-587}
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME:?Define SPRING_MAIL_USERNAME in .env}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD:?Define SPRING_MAIL_PASSWORD in .env}
+      SPRING_MAIL_SMTP_AUTH: ${SPRING_MAIL_SMTP_AUTH:-true}
+      SPRING_MAIL_SMTP_STARTTLS_ENABLE: ${SPRING_MAIL_SMTP_STARTTLS_ENABLE:-true}
+      NOTIFICACIONES_EMAIL_ENABLED: ${NOTIFICACIONES_EMAIL_ENABLED:-true}
+      NOTIFICACIONES_EMAIL_FROM: ${NOTIFICACIONES_EMAIL_FROM:?Define NOTIFICACIONES_EMAIL_FROM in .env}
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/rednorte
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/rednorte/protocol/openid-connect/certs
     depends_on:

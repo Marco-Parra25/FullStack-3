@@ -102,6 +102,37 @@ class WaitlistControllerTest {
     }
 
     @Test
+    @DisplayName("POST /api/v1/waitlist/asignaciones/siguiente retorna paciente con token interno")
+    void asignarSiguientePaciente() throws Exception {
+        Paciente paciente = Paciente.builder()
+                .id(1L)
+                .rut("12345678-9")
+                .nombre("María")
+                .apellido("González")
+                .telefono("+56912345678")
+                .email("maria@email.cl")
+                .build();
+
+        when(waitlistUseCase.asignarSiguientePaciente("Cardiología")).thenReturn(java.util.Optional.of(paciente));
+
+        mockMvc.perform(post("/api/v1/waitlist/asignaciones/siguiente")
+                        .param("especialidad", "Cardiología")
+                        .header("X-Internal-Token", "dev-internal-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rut").value("12345678-9"))
+                .andExpect(jsonPath("$.email").value("maria@email.cl"));
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/waitlist/asignaciones/siguiente rechaza token interno invalido")
+    void asignarSiguientePacienteTokenInvalido() throws Exception {
+        mockMvc.perform(post("/api/v1/waitlist/asignaciones/siguiente")
+                        .param("especialidad", "Cardiología")
+                        .header("X-Internal-Token", "incorrecto"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     @DisplayName("PATCH /api/v1/waitlist/{id}/estado actualiza estado y retorna 200")
     void actualizarEstado() throws Exception {
         WaitlistItem actualizado = WaitlistItem.builder()

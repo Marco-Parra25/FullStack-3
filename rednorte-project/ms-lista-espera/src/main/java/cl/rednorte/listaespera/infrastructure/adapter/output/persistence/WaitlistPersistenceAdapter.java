@@ -10,6 +10,7 @@ import cl.rednorte.listaespera.infrastructure.adapter.output.persistence.reposit
 import cl.rednorte.listaespera.infrastructure.adapter.output.persistence.repository.JpaWaitlistRepository;
 import cl.rednorte.listaespera.infrastructure.exception.PacienteNotFoundException;
 import cl.rednorte.listaespera.infrastructure.exception.WaitlistItemNotFoundException;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -85,6 +86,15 @@ public class WaitlistPersistenceAdapter implements WaitlistRepository {
                 .stream()
                 .map(WaitlistItemMapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    public Optional<WaitlistItem> findSiguienteDisponible(String especialidad) {
+        return jpaWaitlistRepository
+                .findSiguientesDisponiblesForUpdate(especialidad, EstadoEspera.EN_ESPERA, PageRequest.of(0, 1))
+                .stream()
+                .findFirst()
+                .map(WaitlistItemMapper::toDomain);
     }
 
     @Override

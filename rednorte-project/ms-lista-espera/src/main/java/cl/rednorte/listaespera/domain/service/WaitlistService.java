@@ -1,29 +1,40 @@
 package cl.rednorte.listaespera.domain.service;
 
 import cl.rednorte.listaespera.domain.factory.WaitlistItemFactory;
+import cl.rednorte.listaespera.domain.event.CupoLiberadoEvent;
 import cl.rednorte.listaespera.domain.model.EstadoEspera;
 import cl.rednorte.listaespera.domain.model.Paciente;
 import cl.rednorte.listaespera.domain.model.TipoAtencion;
 import cl.rednorte.listaespera.domain.model.WaitlistItem;
 import cl.rednorte.listaespera.domain.port.input.WaitlistUseCase;
+import cl.rednorte.listaespera.domain.port.output.CupoLiberadoPublisherPort;
 import cl.rednorte.listaespera.domain.port.output.PacienteRepository;
 import cl.rednorte.listaespera.domain.port.output.WaitlistRepository;
 import cl.rednorte.listaespera.infrastructure.exception.PacienteNotFoundException;
 import cl.rednorte.listaespera.infrastructure.exception.WaitlistItemNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 public class WaitlistService implements WaitlistUseCase {
 
     private final WaitlistRepository waitlistRepository;
     private final PacienteRepository pacienteRepository;
+    private final CupoLiberadoPublisherPort cupoLiberadoPublisherPort;
 
-    public WaitlistService(WaitlistRepository waitlistRepository, PacienteRepository pacienteRepository) {
+    public WaitlistService(
+            WaitlistRepository waitlistRepository,
+            PacienteRepository pacienteRepository,
+            CupoLiberadoPublisherPort cupoLiberadoPublisherPort
+    ) {
         this.waitlistRepository = waitlistRepository;
         this.pacienteRepository = pacienteRepository;
+        this.cupoLiberadoPublisherPort = cupoLiberadoPublisherPort;
     }
 
     @Override
+    @Transactional
     public WaitlistItem registrarPaciente(Long pacienteId, TipoAtencion tipo, String especialidad) {
         Paciente paciente = pacienteRepository.findById(pacienteId)
                 .orElseThrow(() -> new PacienteNotFoundException(pacienteId));
@@ -49,13 +60,16 @@ public class WaitlistService implements WaitlistUseCase {
     }
 
     @Override
+    @Transactional
     public void cancelar(Long id) {
         WaitlistItem item = obtenerPorId(id);
         item.cancelar();
         waitlistRepository.save(item);
+        cupoLiberadoPublisherPort.publicar(new CupoLiberadoEvent(item.getId().toString(), item.getEspecialidad()));
     }
 
     @Override
+    @Transactional
     public WaitlistItem actualizarEstado(Long id, EstadoEspera estado) {
         WaitlistItem item = obtenerPorId(id);
         item.cambiarEstado(estado);
@@ -70,5 +84,15 @@ public class WaitlistService implements WaitlistUseCase {
     @Override
     public List<WaitlistItem> listarPorPrioridad() {
         return waitlistRepository.findAllOrderByPrioridad();
+    }
+
+    @Override
+    @Transactional
+    public Optional<Paciente> asignarSiguientePaciente(String especialidad) {
+        return waitlistRepository.findSiguienteDisponible(especialidad)
+                .map(item -> {
+                    item.asignar();
+                    return waitlistRepository.save(item).getPaciente();
+                });
     }
 }

@@ -3,12 +3,15 @@ package cl.rednorte.listaespera.infrastructure.adapter.input.rest;
 import cl.rednorte.listaespera.domain.model.WaitlistItem;
 import cl.rednorte.listaespera.domain.port.input.WaitlistUseCase;
 import cl.rednorte.listaespera.infrastructure.adapter.input.rest.dto.ActualizarEstadoRequest;
+import cl.rednorte.listaespera.infrastructure.adapter.input.rest.dto.PacienteResponse;
 import cl.rednorte.listaespera.infrastructure.adapter.input.rest.dto.RegistroRequest;
 import cl.rednorte.listaespera.infrastructure.adapter.input.rest.dto.WaitlistResponse;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -18,9 +21,14 @@ import java.util.Map;
 public class WaitlistController {
 
     private final WaitlistUseCase waitlistUseCase;
+    private final String internalToken;
 
-    public WaitlistController(WaitlistUseCase waitlistUseCase) {
+    public WaitlistController(
+            WaitlistUseCase waitlistUseCase,
+            @Value("${rednorte.internal-token:dev-internal-token}") String internalToken
+    ) {
         this.waitlistUseCase = waitlistUseCase;
+        this.internalToken = internalToken;
     }
 
     @PostMapping
@@ -71,6 +79,19 @@ public class WaitlistController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/asignaciones/siguiente")
+    public ResponseEntity<PacienteResponse> asignarSiguientePaciente(
+            @RequestParam String especialidad,
+            @RequestHeader("X-Internal-Token") String token
+    ) {
+        validarTokenInterno(token);
+
+        return waitlistUseCase.asignarSiguientePaciente(especialidad)
+                .map(PacienteResponse::from)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PatchMapping("/{id}/estado")
     public ResponseEntity<WaitlistResponse> actualizarEstado(
             @PathVariable Long id,
@@ -82,5 +103,11 @@ public class WaitlistController {
     @GetMapping("/count")
     public ResponseEntity<Map<String, Long>> contarEnEspera() {
         return ResponseEntity.ok(Map.of("enEspera", waitlistUseCase.contarEnEspera()));
+    }
+
+    private void validarTokenInterno(String token) {
+        if (!internalToken.equals(token)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Token interno invalido");
+        }
     }
 }

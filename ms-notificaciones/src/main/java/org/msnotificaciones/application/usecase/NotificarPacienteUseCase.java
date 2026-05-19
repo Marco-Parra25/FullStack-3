@@ -30,22 +30,24 @@ public class NotificarPacienteUseCase {
                 evento.especialidad(), evento.pacienteRut()
         );
 
-        // 3. DECISIÓN DE CANALES (Toda la lógica está aquí)
-        try {
-            if (evento.email() != null && !evento.email().isBlank()) {
-                log.info("--- Decisión: Usar canal EMAIL");
+        if (evento.email() != null && !evento.email().isBlank()) {
+            log.info("--- Decision: Usar canal EMAIL");
+            try {
                 notificacionPort.enviarEmail(evento.email(), cuerpoMensaje);
+            } catch (Exception e) {
+                log.error("XXX Error al enviar email a {}: {}", evento.email(), e.getMessage());
             }
-
-            if (evento.telefono() != null && !evento.telefono().isBlank()) {
-                log.info("--- Decisión: Usar canal SMS");
-                notificacionPort.enviarSMS(evento.telefono(), cuerpoMensaje);
-            }
-
-            log.info("===[ CAPA APLICACIÓN ]=== Proceso finalizado correctamente.");
-
-        } catch (Exception e) {
-            log.error("XXX Error al ejecutar la notificación: {}", e.getMessage());
         }
+
+        if (evento.telefono() != null && !evento.telefono().isBlank()) {
+            log.info("--- Decision: Usar canal SMS");
+            try {
+                notificacionPort.enviarSMS(evento.telefono(), cuerpoMensaje);
+            } catch (Exception e) {
+                log.error("XXX Error al enviar SMS a {}: {}", evento.telefono(), e.getMessage());
+            }
+        }
+
+        log.info("===[ CAPA APLICACIÓN ]=== Proceso finalizado correctamente.");
     }
 }

@@ -20,6 +20,14 @@ spring:
     enabled: ${SPRING_FLYWAY_ENABLED:true}
     locations: classpath:db/migration
 
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+
   security:
     oauth2:
       resourceserver:
@@ -29,6 +37,13 @@ spring:
 
 server:
   port: ${SERVER_PORT:8081}
+
+rednorte:
+  internal-token: ${REDNORTE_INTERNAL_TOKEN:dev-internal-token}
+  kafka:
+    topics:
+      cupo-liberado: ${TOPIC_CUPO_LIBERADO:cupo-liberado}
+    send-timeout-ms: ${KAFKA_SEND_TIMEOUT_MS:5000}
 
 management:
   endpoints:

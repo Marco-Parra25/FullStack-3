@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -66,8 +67,16 @@ public class ReasignarCupoUseCase {
         return Reasignacion.crearPendiente(
                 paciente.getRut(),
                 evento.especialidad(),
-                UUID.fromString(evento.cupoId())
+                normalizarCupoId(evento.cupoId())
         );
+    }
+
+    private UUID normalizarCupoId(String cupoId) {
+        try {
+            return UUID.fromString(cupoId);
+        } catch (RuntimeException e) {
+            return UUID.nameUUIDFromBytes(("cupo-liberado:" + cupoId).getBytes(StandardCharsets.UTF_8));
+        }
     }
 
     private void marcarComoAsignada(Reasignacion reasignacion) {

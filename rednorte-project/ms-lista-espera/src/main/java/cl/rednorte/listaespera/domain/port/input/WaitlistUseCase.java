@@ -1,10 +1,12 @@
 package cl.rednorte.listaespera.domain.port.input;
 
 import cl.rednorte.listaespera.domain.model.EstadoEspera;
+import cl.rednorte.listaespera.domain.model.Paciente;
 import cl.rednorte.listaespera.domain.model.TipoAtencion;
 import cl.rednorte.listaespera.domain.model.WaitlistItem;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface WaitlistUseCase {
 
@@ -23,4 +25,6 @@ public interface WaitlistUseCase {
     long contarEnEspera();
 
     List<WaitlistItem> listarPorPrioridad();
+
+    Optional<Paciente> asignarSiguientePaciente(String especialidad);
 }

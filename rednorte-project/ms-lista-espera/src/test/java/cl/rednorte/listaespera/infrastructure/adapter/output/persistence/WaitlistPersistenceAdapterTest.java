@@ -72,6 +72,18 @@ class WaitlistPersistenceAdapterTest {
     }
 
     @Test
+    @DisplayName("findSiguienteDisponible retorna el paciente con mayor prioridad")
+    void findSiguienteDisponible() {
+        crearItemEntity("Cardiología", TipoAtencion.CONSULTA, 3);
+        crearItemEntity("Cardiología", TipoAtencion.URGENCIA_DIFERIDA, 1);
+
+        WaitlistItem result = adapter.findSiguienteDisponible("Cardiología").orElseThrow();
+
+        assertEquals(1, result.getPrioridad());
+        assertEquals("Cardiología", result.getEspecialidad());
+    }
+
+    @Test
     @DisplayName("countEnEspera cuenta solo registros EN_ESPERA")
     void countEnEspera() {
         crearItemEntity("Cardiología", TipoAtencion.CONSULTA, 3);

@@ -3,7 +3,10 @@ package cl.rednorte.listaespera.infrastructure.adapter.output.persistence.reposi
 import cl.rednorte.listaespera.domain.model.EstadoEspera;
 import cl.rednorte.listaespera.infrastructure.adapter.output.persistence.dto.WaitlistItemDto;
 import cl.rednorte.listaespera.infrastructure.adapter.output.persistence.entity.WaitlistItemEntity;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -71,4 +74,17 @@ public interface JpaWaitlistRepository extends JpaRepository<WaitlistItemEntity,
     List<WaitlistItemDto> findDtoByEspecialidadAndEstado(
             @Param("especialidad") String especialidad,
             @Param("estado") EstadoEspera estado);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+            SELECT w
+            FROM WaitlistItemEntity w
+            JOIN FETCH w.paciente
+            WHERE w.especialidad = :especialidad AND w.estado = :estado
+            ORDER BY w.prioridad ASC, w.fechaIngreso ASC
+            """)
+    List<WaitlistItemEntity> findSiguientesDisponiblesForUpdate(
+            @Param("especialidad") String especialidad,
+            @Param("estado") EstadoEspera estado,
+            Pageable pageable);
 }

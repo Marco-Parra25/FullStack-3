@@ -2,6 +2,7 @@ package cl.rednorte.listaespera.infrastructure.config;
 
 import cl.rednorte.listaespera.domain.port.input.PacienteUseCase;
 import cl.rednorte.listaespera.domain.port.input.WaitlistUseCase;
+import cl.rednorte.listaespera.domain.port.output.CupoLiberadoPublisherPort;
 import cl.rednorte.listaespera.domain.port.output.PacienteRepository;
 import cl.rednorte.listaespera.domain.port.output.WaitlistRepository;
 import cl.rednorte.listaespera.domain.service.PacienteService;
@@ -19,7 +20,8 @@ public class BeanConfig {
 
     @Bean
     public WaitlistUseCase waitlistUseCase(WaitlistRepository waitlistRepository,
-                                            PacienteRepository pacienteRepository) {
-        return new WaitlistService(waitlistRepository, pacienteRepository);
+                                            PacienteRepository pacienteRepository,
+                                            CupoLiberadoPublisherPort cupoLiberadoPublisherPort) {
+        return new WaitlistService(waitlistRepository, pacienteRepository, cupoLiberadoPublisherPort);
     }
 }
