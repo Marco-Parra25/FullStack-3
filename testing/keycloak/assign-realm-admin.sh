@@ -9,9 +9,16 @@ SA_CLIENT_ID="rednorte-api"
 
 # 1. Wait for Keycloak to be ready
 echo "Waiting for Keycloak..."
+MAX_ATTEMPTS=60
+ATTEMPT=0
 until curl -sf "${KEYCLOAK_URL}/realms/master" > /dev/null 2>&1; do
-  echo "  Not ready yet, retrying in 5s..."
-  sleep 5
+  ATTEMPT=$((ATTEMPT + 1))
+  if [ "$ATTEMPT" -ge "$MAX_ATTEMPTS" ]; then
+    echo "Keycloak did not become ready after ${MAX_ATTEMPTS} attempts. Exiting."
+    exit 1
+  fi
+  echo "  Not ready yet (attempt ${ATTEMPT}/${MAX_ATTEMPTS}), retrying in 10s..."
+  sleep 10
 done
 echo "Keycloak is ready."
 
