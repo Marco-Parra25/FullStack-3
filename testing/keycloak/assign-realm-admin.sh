@@ -21,6 +21,8 @@ until curl -sf "${KEYCLOAK_URL}/realms/master" > /dev/null 2>&1; do
   sleep 10
 done
 echo "Keycloak is ready."
+echo "Waiting 30s for realm import to complete..."
+sleep 30
 
 # 2. Obtain admin token from master realm using admin-cli (password grant)
 TOKEN=$(curl -sf \
