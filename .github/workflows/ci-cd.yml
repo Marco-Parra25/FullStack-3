@@ -48,22 +48,26 @@ jobs:
     
     # ─── BUILD MICROSERVICIOS ─────────────────────────────────────
     - name: Build MS Lista Espera
+      if: hashFiles('rednorte-project/ms-lista-espera/pom.xml') != ''
       run: |
         cd rednorte-project/ms-lista-espera
         mvn clean compile -DskipTests
-    
+
     - name: Build MS Reasignación
+      if: hashFiles('ms-reasignacion/pom.xml') != ''
       run: |
         cd ms-reasignacion
         mvn clean compile -DskipTests
-    
+
     - name: Build API Gateway
+      if: hashFiles('ms-api-gateway/pom.xml') != ''
       run: |
         cd ms-api-gateway
         mvn clean compile -DskipTests
-    
+
     # ─── UNIT TESTS ─────────────────────────────────────────────
     - name: Run Tests MS Lista Espera
+      if: hashFiles('rednorte-project/ms-lista-espera/pom.xml') != ''
       run: |
         cd rednorte-project/ms-lista-espera
         mvn test
@@ -71,8 +75,9 @@ jobs:
         SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/test_db
         SPRING_DATASOURCE_USERNAME: postgres
         SPRING_DATASOURCE_PASSWORD: postgres
-    
+
     - name: Run Tests MS Reasignación
+      if: hashFiles('ms-reasignacion/pom.xml') != ''
       run: |
         cd ms-reasignacion
         mvn test
@@ -80,26 +85,30 @@ jobs:
         SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/test_db
         SPRING_DATASOURCE_USERNAME: postgres
         SPRING_DATASOURCE_PASSWORD: postgres
-    
+
     - name: Run Tests API Gateway
+      if: hashFiles('ms-api-gateway/pom.xml') != ''
       run: |
         cd ms-api-gateway
         mvn test
-    
+
     # ─── BUILD FRONTEND ─────────────────────────────────────────────
     - name: Setup Node.js
+      if: hashFiles('bff/package-lock.json') != ''
       uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
         cache-dependency-path: bff/package-lock.json
-    
+
     - name: Install BFF dependencies
+      if: hashFiles('bff/package-lock.json') != ''
       run: |
         cd bff
         npm ci
-    
+
     - name: Build BFF
+      if: hashFiles('bff/package-lock.json') != ''
       run: |
         cd bff
         npm run build
