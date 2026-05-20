@@ -12,4 +12,18 @@ axiosInstance.interceptors.request.use(config => {
   return config
 })
 
+axiosInstance.interceptors.response.use(
+  response => response,
+  error => {
+    const status = error.response?.status
+    if (status === 401) {
+      sessionStorage.clear()
+      window.location.replace('/')
+    } else if (status === 403) {
+      window.location.replace('/403')
+    }
+    return Promise.reject(error)
+  }
+)
+
 export default axiosInstance
