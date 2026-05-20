@@ -8,9 +8,8 @@ spring:
   cloud:
     gateway:
       routes:
-        # Mock MS Lista de Espera
-        - id: mock-lista-espera
-          uri: http://mock-lista-espera:1080
+        - id: ms-lista-espera
+          uri: http://ms-lista-espera:8081
           predicates:
             - Path=/api/lista-espera/**
           filters:
@@ -20,9 +19,8 @@ spring:
                 name: listaEsperaCircuitBreaker
                 fallbackUri: forward:/fallback/lista-espera
 
-        # Mock MS Reasignación
-        - id: mock-reasignacion
-          uri: http://mock-reasignacion:1080
+        - id: ms-reasignacion
+          uri: http://ms-reasignacion:8082
           predicates:
             - Path=/api/reasignacion/**
           filters:
@@ -32,9 +30,8 @@ spring:
                 name: reasignacionCircuitBreaker
                 fallbackUri: forward:/fallback/reasignacion
 
-        # Mock MS Notificaciones
-        - id: mock-notificaciones
-          uri: http://mock-notificaciones:1080
+        - id: ms-notificaciones
+          uri: http://ms-notificaciones:8083
           predicates:
             - Path=/api/notificaciones/**
           filters:
@@ -43,14 +40,6 @@ spring:
               args:
                 name: notificacionesCircuitBreaker
                 fallbackUri: forward:/fallback/notificaciones
-
-        # Mock MS Monitoreo
-        - id: mock-monitoreo
-          uri: http://mock-notificaciones:1080
-          predicates:
-            - Path=/api/monitoreo/**
-          filters:
-            - StripPrefix=2
 
       globalcors:
         cors-configurations:
