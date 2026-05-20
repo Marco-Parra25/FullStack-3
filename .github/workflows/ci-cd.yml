@@ -14,7 +14,11 @@ jobs:
   # ─── BUILD & TEST ─────────────────────────────────────────────
   build-and-test:
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+
     services:
       postgres:
         image: postgres:15-alpine
@@ -123,7 +127,9 @@ jobs:
         output: 'trivy-results.sarif'
     
     - name: Upload Trivy scan results
-      uses: github/codeql-action/upload-sarif@v3
+      if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+      uses: github/codeql-action/upload-sarif@v4
+      continue-on-error: true
       with:
         sarif_file: 'trivy-results.sarif'
 
