@@ -15,11 +15,6 @@ spring:
             - Path=/api/lista-espera/**
           filters:
             - StripPrefix=2
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 10
-                redis-rate-limiter.burstCapacity: 20
-                key-resolver: "#{@userKeyResolver}"
             - name: CircuitBreaker
               args:
                 name: listaEsperaCircuitBreaker
@@ -32,11 +27,6 @@ spring:
             - Path=/api/reasignacion/**
           filters:
             - StripPrefix=2
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 10
-                redis-rate-limiter.burstCapacity: 20
-                key-resolver: "#{@userKeyResolver}"
             - name: CircuitBreaker
               args:
                 name: reasignacionCircuitBreaker
@@ -49,11 +39,6 @@ spring:
             - Path=/api/notificaciones/**
           filters:
             - StripPrefix=2
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 10
-                redis-rate-limiter.burstCapacity: 20
-                key-resolver: "#{@userKeyResolver}"
             - name: CircuitBreaker
               args:
                 name: notificacionesCircuitBreaker
@@ -66,11 +51,6 @@ spring:
             - Path=/api/monitoreo/**
           filters:
             - StripPrefix=2
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 5
-                redis-rate-limiter.burstCapacity: 10
-                key-resolver: "#{@userKeyResolver}"
 
       globalcors:
         cors-configurations:
@@ -83,6 +63,7 @@ spring:
               - GET
               - POST
               - PUT
+              - PATCH
               - DELETE
               - OPTIONS
             allowedHeaders: "*"
@@ -106,8 +87,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://keycloak:8081/realms/rednorte
-          jwk-set-uri: http://keycloak:8081/realms/rednorte/protocol/openid-connect/certs
+          issuer-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI:http://keycloak:8080/realms/rednorte}
+          jwk-set-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI:http://keycloak:8080/realms/rednorte/protocol/openid-connect/certs}
 
 # Resilience4j Configuration
 resilience4j:
@@ -155,9 +136,9 @@ management:
 # Logging Configuration
 logging:
   level:
-    cl.rednorte.gateway: DEBUG
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.web.reactive: DEBUG
+    cl.rednorte.gateway: INFO
+    org.springframework.cloud.gateway: INFO
+    org.springframework.web.reactive: INFO
     reactor.netty: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

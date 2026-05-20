@@ -16,12 +16,6 @@ spring:
             - Path=/api/lista-espera/**
           filters:
             - StripPrefix=2
-            - name: TokenRelay
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 10
-                redis-rate-limiter.burstCapacity: 20
-                key-resolver: "#{@userKeyResolver}"
             - name: CircuitBreaker
               args:
                 name: listaEsperaCircuitBreaker
@@ -34,12 +28,6 @@ spring:
             - Path=/api/reasignacion/**
           filters:
             - StripPrefix=2
-            - name: TokenRelay
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 10
-                redis-rate-limiter.burstCapacity: 20
-                key-resolver: "#{@userKeyResolver}"
             - name: CircuitBreaker
               args:
                 name: reasignacionCircuitBreaker
@@ -52,12 +40,6 @@ spring:
             - Path=/api/notificaciones/**
           filters:
             - StripPrefix=2
-            - name: TokenRelay
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 15
-                redis-rate-limiter.burstCapacity: 30
-                key-resolver: "#{@userKeyResolver}"
             - name: CircuitBreaker
               args:
                 name: notificacionesCircuitBreaker
@@ -70,12 +52,6 @@ spring:
             - Path=/api/monitoreo/prometheus/**
           filters:
             - StripPrefix=3
-            - name: TokenRelay
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 10
-                redis-rate-limiter.burstCapacity: 20
-                key-resolver: "#{@userKeyResolver}"
             - name: CircuitBreaker
               args:
                 name: prometheusCircuitBreaker
@@ -87,12 +63,6 @@ spring:
             - Path=/api/monitoreo/grafana/**
           filters:
             - StripPrefix=3
-            - name: TokenRelay
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 10
-                redis-rate-limiter.burstCapacity: 20
-                key-resolver: "#{@userKeyResolver}"
             - name: CircuitBreaker
               args:
                 name: grafanaCircuitBreaker
@@ -105,12 +75,6 @@ spring:
             - Path=/api/services/lista-espera/**
           filters:
             - StripPrefix=3
-            - name: TokenRelay
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 15
-                redis-rate-limiter.burstCapacity: 30
-                key-resolver: "#{@userKeyResolver}"
             - name: CircuitBreaker
               args:
                 name: listaEsperaDirectCircuitBreaker
@@ -122,12 +86,6 @@ spring:
             - Path=/api/services/reasignacion/**
           filters:
             - StripPrefix=3
-            - name: TokenRelay
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 15
-                redis-rate-limiter.burstCapacity: 30
-                key-resolver: "#{@userKeyResolver}"
             - name: CircuitBreaker
               args:
                 name: reasignacionDirectCircuitBreaker
@@ -139,12 +97,6 @@ spring:
             - Path=/api/services/notificaciones/**
           filters:
             - StripPrefix=3
-            - name: TokenRelay
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 20
-                redis-rate-limiter.burstCapacity: 40
-                key-resolver: "#{@userKeyResolver}"
             - name: CircuitBreaker
               args:
                 name: notificacionesDirectCircuitBreaker
@@ -162,6 +114,7 @@ spring:
               - GET
               - POST
               - PUT
+              - PATCH
               - DELETE
               - OPTIONS
             allowedHeaders: "*"
@@ -277,9 +230,9 @@ management:
 # Configuración de logging
 logging:
   level:
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.security: DEBUG
-    cl.rednorte: DEBUG
+    org.springframework.cloud.gateway: INFO
+    org.springframework.security: INFO
+    cl.rednorte: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{traceId:-},%X{spanId:-}] %logger{36} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{traceId:-},%X{spanId:-}] %logger{36} - %msg%n"

@@ -1,7 +1,7 @@
 package cl.rednorte.gateway.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -14,37 +14,37 @@ import java.util.Map;
 @RequestMapping("/fallback")
 public class FallbackController {
 
-    @GetMapping("/monitoreo")
-    public Mono<Map<String, Object>> monitoreoFallback() {
-        return createFallbackResponse("monitoreo", "Servicio de monitoreo temporalmente no disponible");
+    @RequestMapping("/lista-espera")
+    public Mono<ResponseEntity<Map<String, Object>>> listaEsperaFallback() {
+        return createFallbackResponse("ms-lista-espera", "Servicio de lista de espera temporalmente no disponible");
     }
 
-    @GetMapping("/lista-espera")
-    public Mono<Map<String, Object>> listaEsperaFallback() {
-        return createFallbackResponse("lista-espera", "Servicio de lista de espera temporalmente no disponible");
+    @RequestMapping("/reasignacion")
+    public Mono<ResponseEntity<Map<String, Object>>> reasignacionFallback() {
+        return createFallbackResponse("ms-reasignacion", "Servicio de reasignación temporalmente no disponible");
     }
 
-    @GetMapping("/reasignacion")
-    public Mono<Map<String, Object>> reasignacionFallback() {
-        return createFallbackResponse("reasignacion", "Servicio de reasignación temporalmente no disponible");
+    @RequestMapping("/notificaciones")
+    public Mono<ResponseEntity<Map<String, Object>>> notificacionesFallback() {
+        return createFallbackResponse("ms-notificaciones", "Servicio de notificaciones temporalmente no disponible");
     }
 
-    @GetMapping("/notificaciones")
-    public Mono<Map<String, Object>> notificacionesFallback() {
-        return createFallbackResponse("notificaciones", "Servicio de notificaciones temporalmente no disponible");
-    }
-
-    @GetMapping("/bff-portal")
-    public Mono<Map<String, Object>> bffPortalFallback() {
+    @RequestMapping("/bff-portal")
+    public Mono<ResponseEntity<Map<String, Object>>> bffPortalFallback() {
         return createFallbackResponse("bff-portal", "Portal de pacientes temporalmente no disponible");
     }
 
-    @GetMapping("/bff-admin")
-    public Mono<Map<String, Object>> bffAdminFallback() {
+    @RequestMapping("/bff-admin")
+    public Mono<ResponseEntity<Map<String, Object>>> bffAdminFallback() {
         return createFallbackResponse("bff-admin", "Panel administrativo temporalmente no disponible");
     }
 
-    private Mono<Map<String, Object>> createFallbackResponse(String service, String message) {
+    @RequestMapping("/monitoreo")
+    public Mono<ResponseEntity<Map<String, Object>>> monitoreoFallback() {
+        return createFallbackResponse("monitoreo", "Servicio de monitoreo temporalmente no disponible");
+    }
+
+    private Mono<ResponseEntity<Map<String, Object>>> createFallbackResponse(String service, String message) {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
         response.put("status", "SERVICE_UNAVAILABLE");
@@ -52,6 +52,6 @@ public class FallbackController {
         response.put("message", message);
         response.put("retryAfter", "30s");
         
-        return Mono.just(response);
+        return Mono.just(ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response));
     }
 }
