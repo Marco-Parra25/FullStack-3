@@ -183,7 +183,18 @@ jobs:
           type=sha,prefix={{branch}}-
           type=raw,value=latest,enable={{is_default_branch}}
     
+    - name: Verificar si el contexto existe
+      id: check_context
+      run: |
+        if [ -d "${{ matrix.context }}" ]; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+          echo "Saltando build de ${{ matrix.service }}: directorio ${{ matrix.context }} no existe en esta rama."
+        fi
+
     - name: Build and push Docker image
+      if: steps.check_context.outputs.exists == 'true'
       uses: docker/build-push-action@v5
       with:
         context: ${{ matrix.context }}
