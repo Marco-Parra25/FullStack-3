@@ -1,5 +1,4 @@
 #!/bin/sh
-set -e
 
 KEYCLOAK_URL="http://keycloak:8080"
 REALM="rednorte"
