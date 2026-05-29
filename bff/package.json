@@ -7,13 +7,16 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "build": "echo 'Construcción de BFF completada (no requiere compilación)'",
-    "test": "echo \"Error: no test specified\" && exit 0"
+    "test": "jest --coverage"
   },
-  "keywords": [
-    "bff",
-    "rednorte",
-    "gateway"
-  ],
+  "jest": {
+    "testEnvironment": "node",
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ]
+  },
+  "keywords": ["bff", "rednorte", "gateway"],
   "author": "Dominique",
   "license": "ISC",
   "dependencies": {
@@ -23,6 +26,8 @@
     "express": "^5.2.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0"
+    "jest": "^30.4.2",
+    "nodemon": "^3.1.0",
+    "supertest": "^7.2.2"
   }
 }
