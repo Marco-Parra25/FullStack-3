@@ -3,7 +3,39 @@ const service = require('../services/listaEsperaService')
 const keycloakService = require('../services/keycloakService')
 const { handleGatewayError } = require('../utils/gatewayError')
 
-// Lista de espera
+/**
+ * @swagger
+ * tags:
+ *   name: Admin
+ *   description: Gestión de lista de espera y pacientes (requiere rol administrador)
+ */
+
+/**
+ * @swagger
+ * /admin/lista:
+ *   get:
+ *     summary: Obtener lista de espera ordenada por prioridad
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de pacientes en espera con total
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 pacientes:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 totalEnEspera:
+ *                   type: integer
+ *                   example: 12
+ *       500:
+ *         description: Error al obtener la lista
+ */
 router.get('/lista', async (req, res) => {
   try {
     const authorization = req.headers.authorization
@@ -18,6 +50,39 @@ router.get('/lista', async (req, res) => {
   }
 })
 
+/**
+ * @swagger
+ * /admin/registrar:
+ *   post:
+ *     summary: Registrar un paciente en la lista de espera
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [pacienteRut, especialidad, prioridad]
+ *             properties:
+ *               pacienteRut:
+ *                 type: string
+ *                 example: 12345678-9
+ *               especialidad:
+ *                 type: string
+ *                 example: Cardiología
+ *               prioridad:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       201:
+ *         description: Paciente registrado en la lista de espera
+ *       404:
+ *         description: Paciente no encontrado
+ *       500:
+ *         description: Error al registrar
+ */
 router.post('/registrar', async (req, res) => {
   try {
     const resultado = await service.registrar(req.body, req.headers.authorization)
@@ -30,6 +95,35 @@ router.post('/registrar', async (req, res) => {
   }
 })
 
+/**
+ * @swagger
+ * /admin/cancelar/{id}:
+ *   patch:
+ *     summary: Cancelar una entrada de la lista de espera
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de la entrada en lista de espera
+ *     responses:
+ *       200:
+ *         description: Cita cancelada y reasignación automática iniciada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mensaje:
+ *                   type: string
+ *                   example: Cita cancelada. El sistema reasignará automáticamente y notificará al paciente.
+ *       500:
+ *         description: Error al cancelar
+ */
 router.patch('/cancelar/:id', async (req, res) => {
   const id = req.params.id
   const authorization = req.headers.authorization
@@ -43,6 +137,38 @@ router.patch('/cancelar/:id', async (req, res) => {
   }
 })
 
+/**
+ * @swagger
+ * /admin/estado/{id}:
+ *   patch:
+ *     summary: Actualizar el estado de una entrada en lista de espera
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de la entrada en lista de espera
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [estado]
+ *             properties:
+ *               estado:
+ *                 type: string
+ *                 example: ATENDIDO
+ *     responses:
+ *       200:
+ *         description: Estado actualizado correctamente
+ *       500:
+ *         description: Error al actualizar estado
+ */
 router.patch('/estado/:id', async (req, res) => {
   try {
     const resultado = await service.actualizarEstado(
@@ -56,7 +182,26 @@ router.patch('/estado/:id', async (req, res) => {
   }
 })
 
-// Pacientes
+/**
+ * @swagger
+ * /admin/pacientes:
+ *   get:
+ *     summary: Listar todos los pacientes
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Array de pacientes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *       500:
+ *         description: Error al obtener pacientes
+ */
 router.get('/pacientes', async (req, res) => {
   try {
     const pacientes = await service.listarPacientes(req.headers.authorization)
@@ -66,6 +211,44 @@ router.get('/pacientes', async (req, res) => {
   }
 })
 
+/**
+ * @swagger
+ * /admin/pacientes:
+ *   post:
+ *     summary: Crear un nuevo paciente y su usuario en Keycloak
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [rut, nombre, apellido]
+ *             properties:
+ *               rut:
+ *                 type: string
+ *                 example: 12345678-9
+ *               nombre:
+ *                 type: string
+ *                 example: Juan
+ *               apellido:
+ *                 type: string
+ *                 example: Pérez
+ *               email:
+ *                 type: string
+ *                 example: juan.perez@mail.com
+ *     responses:
+ *       201:
+ *         description: Paciente creado. Si Keycloak falla, se incluye un campo `aviso`.
+ *       400:
+ *         description: Datos inválidos
+ *       409:
+ *         description: Usuario Keycloak ya existe
+ *       500:
+ *         description: Error al crear paciente
+ */
 router.post('/pacientes', async (req, res) => {
   try {
     const paciente = await service.crearPaciente(req.body, req.headers.authorization)
