@@ -15,6 +15,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.Optional;
 
 @Component
@@ -38,11 +39,12 @@ public class ListaEsperaClientAdapter implements PacientePort {
     @Override
     @CircuitBreaker(name = "listaEsperaCB", fallbackMethod = "fallbackObtenerPaciente")
     public Optional<Paciente> obtenerSiguientePaciente(String especialidad) {
-        String url = UriComponentsBuilder
+        URI uri = UriComponentsBuilder
                 .fromHttpUrl(listaEsperaBaseUrl)
                 .path("/api/v1/waitlist/asignaciones/siguiente")
                 .queryParam("especialidad", especialidad)
-                .toUriString();
+                .build()
+                .toUri();
 
         log.info("Llamando al MS Lista de Espera para especialidad: {}", especialidad);
 
@@ -51,7 +53,7 @@ public class ListaEsperaClientAdapter implements PacientePort {
 
         try {
             ResponseEntity<Paciente> response = restTemplate.exchange(
-                    url,
+                    uri,
                     HttpMethod.POST,
                     new HttpEntity<>(headers),
                     Paciente.class

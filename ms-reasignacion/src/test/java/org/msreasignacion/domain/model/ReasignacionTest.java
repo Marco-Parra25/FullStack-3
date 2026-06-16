@@ -6,7 +6,14 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.msreasignacion.support.RedNorteRealTestData.CARDIOLOGIA;
+import static org.msreasignacion.support.RedNorteRealTestData.PACIENTE_MARIA_RUT;
+import static org.msreasignacion.support.RedNorteRealTestData.REASIGNACION_CARDIOLOGIA_FECHA;
+import static org.msreasignacion.support.RedNorteRealTestData.REASIGNACION_CARDIOLOGIA_ID;
+import static org.msreasignacion.support.RedNorteRealTestData.WAITLIST_CARDIOLOGIA_ID;
+import static org.msreasignacion.support.RedNorteRealTestData.cupoOrigenUuid;
 
 class ReasignacionTest {
 
@@ -18,12 +25,12 @@ class ReasignacionTest {
 
     @Test
     void debeCrearReasignacionConDatosYValidarGetters() {
-        UUID idEsperado = UUID.randomUUID();
-        String rutEsperado = "12345678-9";
-        String especialidadEsperada = "Cardiologia";
-        LocalDateTime fechaEsperada = LocalDateTime.now();
+        UUID idEsperado = REASIGNACION_CARDIOLOGIA_ID;
+        String rutEsperado = PACIENTE_MARIA_RUT;
+        String especialidadEsperada = CARDIOLOGIA;
+        LocalDateTime fechaEsperada = REASIGNACION_CARDIOLOGIA_FECHA;
         EstadoReasignacion estadoEsperado = EstadoReasignacion.ASIGNADO;
-        UUID cupoIdEsperado = UUID.randomUUID();
+        UUID cupoIdEsperado = cupoOrigenUuid(WAITLIST_CARDIOLOGIA_ID);
 
         Reasignacion reasignacion = new Reasignacion(
                 idEsperado,
@@ -44,29 +51,33 @@ class ReasignacionTest {
     }
 
     @Test
-    void crearPendiente_DebeIniciarConEstadoPendiente() {
-        UUID cupoId = UUID.randomUUID();
+    void crearPendiente_ConPacienteSemillaDeListaEspera_DebeIniciarConEstadoPendiente() {
+        LocalDateTime antesDeCrear = LocalDateTime.now();
+        UUID cupoId = cupoOrigenUuid(WAITLIST_CARDIOLOGIA_ID);
 
         Reasignacion reasignacion = Reasignacion.crearPendiente(
-                "12345678-9",
-                "Cardiologia",
+                PACIENTE_MARIA_RUT,
+                CARDIOLOGIA,
                 cupoId
         );
+        LocalDateTime despuesDeCrear = LocalDateTime.now();
 
         assertNotNull(reasignacion.getId());
-        assertEquals("12345678-9", reasignacion.getPacienteRut());
-        assertEquals("Cardiologia", reasignacion.getEspecialidad());
+        assertEquals(PACIENTE_MARIA_RUT, reasignacion.getPacienteRut());
+        assertEquals(CARDIOLOGIA, reasignacion.getEspecialidad());
         assertEquals(EstadoReasignacion.PENDIENTE, reasignacion.getEstado());
         assertEquals(cupoId, reasignacion.getCupoOrigenId());
         assertNotNull(reasignacion.getFechaAsignacion());
+        assertFalse(reasignacion.getFechaAsignacion().isBefore(antesDeCrear));
+        assertFalse(reasignacion.getFechaAsignacion().isAfter(despuesDeCrear));
     }
 
     @Test
     void cambiosDeEstado_DebenActualizarEstadoDeReasignacion() {
         Reasignacion reasignacion = Reasignacion.crearPendiente(
-                "12345678-9",
-                "Cardiologia",
-                UUID.randomUUID()
+                PACIENTE_MARIA_RUT,
+                CARDIOLOGIA,
+                cupoOrigenUuid(WAITLIST_CARDIOLOGIA_ID)
         );
 
         reasignacion.marcarAsignada();
