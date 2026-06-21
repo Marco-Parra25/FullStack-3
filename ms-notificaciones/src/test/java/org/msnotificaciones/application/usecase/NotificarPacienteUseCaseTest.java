@@ -33,7 +33,6 @@ class NotificarPacienteUseCaseTest {
         // ACT
         useCase.ejecutar(evento);
 
-        // ASSERT
         // Ahora los verificadores coincidirán con los getters del record
         verify(notificacionPort, times(1)).enviarEmail(eq("paciente@correo.cl"), contains("Cardiología"));
         verify(notificacionPort, times(1)).enviarSMS(eq("+56912345678"), contains("12345678-9"));
