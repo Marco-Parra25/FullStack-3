@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -33,6 +34,8 @@ import static org.msreasignacion.support.RedNorteRealTestData.CARDIOLOGIA;
 import static org.msreasignacion.support.RedNorteRealTestData.PACIENTE_MARIA_EMAIL;
 import static org.msreasignacion.support.RedNorteRealTestData.PACIENTE_MARIA_RUT;
 import static org.msreasignacion.support.RedNorteRealTestData.PACIENTE_MARIA_TELEFONO;
+import static org.msreasignacion.support.RedNorteRealTestData.REASIGNACION_CARDIOLOGIA_FECHA;
+import static org.msreasignacion.support.RedNorteRealTestData.REASIGNACION_CARDIOLOGIA_ID;
 import static org.msreasignacion.support.RedNorteRealTestData.TRAUMATOLOGIA;
 import static org.msreasignacion.support.RedNorteRealTestData.WAITLIST_CARDIOLOGIA_ID;
 import static org.msreasignacion.support.RedNorteRealTestData.cupoLiberadoCardiologia;
@@ -114,6 +117,46 @@ class ReasignarCupoUseCaseTest {
         ), estados(reasignacionesGuardadas));
 
         assertReasignacionesUsanDatosDeSemilla(reasignacionesGuardadas);
+    }
+
+    @Test
+    void ejecutar_ConCupoIdUuidValido_DebeUsarUuidOriginalComoCupoOrigen() {
+        UUID cupoId = UUID.fromString("44444444-4444-4444-8444-444444444444");
+        CupoLiberadoEvent evento = new CupoLiberadoEvent(cupoId.toString(), CARDIOLOGIA);
+        Paciente paciente = pacienteMariaGonzalez();
+        List<ReasignacionGuardada> reasignacionesGuardadas = capturarReasignacionesGuardadas();
+
+        when(pacientePort.obtenerSiguientePaciente(CARDIOLOGIA)).thenReturn(Optional.of(paciente));
+
+        useCase.ejecutar(evento);
+
+        assertEquals(cupoId, reasignacionesGuardadas.get(0).cupoOrigenId());
+    }
+
+    @Test
+    void obtenerDetalle_DebeDelegarBusquedaAlRepositorio() {
+        Reasignacion reasignacion = new Reasignacion(
+                REASIGNACION_CARDIOLOGIA_ID,
+                PACIENTE_MARIA_RUT,
+                CARDIOLOGIA,
+                REASIGNACION_CARDIOLOGIA_FECHA,
+                EstadoReasignacion.COMPLETADO,
+                cupoOrigenUuid(WAITLIST_CARDIOLOGIA_ID)
+        );
+        when(repository.buscarPorId(REASIGNACION_CARDIOLOGIA_ID)).thenReturn(Optional.of(reasignacion));
+
+        Optional<Reasignacion> resultado = useCase.obtenerDetalle(REASIGNACION_CARDIOLOGIA_ID);
+
+        assertTrue(resultado.isPresent());
+        assertEquals(reasignacion, resultado.get());
+        verify(repository).buscarPorId(REASIGNACION_CARDIOLOGIA_ID);
+    }
+
+    @Test
+    void fallbackReasignar_NoDebePropagarExcepcion() {
+        assertDoesNotThrow(() ->
+                useCase.fallbackReasignar(cupoLiberadoCardiologia(), new RuntimeException("servicio no disponible"))
+        );
     }
 
     private List<ReasignacionGuardada> capturarReasignacionesGuardadas() {

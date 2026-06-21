@@ -78,6 +78,27 @@ class ListaEsperaClientAdapterTest {
         server.verify();
     }
 
+    @Test
+    void obtenerSiguientePaciente_CuandoRespuestaNoTieneBody_DebeRetornarEmpty() {
+        server.expect(requestTo(startsWith(LISTA_ESPERA_BASE_URL + "/api/v1/waitlist/asignaciones/siguiente")))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(header("X-Internal-Token", INTERNAL_TOKEN))
+                .andExpect(queryParam("especialidad", CARDIOLOGIA))
+                .andRespond(withStatus(HttpStatus.NO_CONTENT));
+
+        Optional<Paciente> paciente = adapter.obtenerSiguientePaciente(CARDIOLOGIA);
+
+        assertTrue(paciente.isEmpty());
+        server.verify();
+    }
+
+    @Test
+    void fallbackObtenerPaciente_DebeRetornarEmpty() {
+        Optional<Paciente> paciente = adapter.fallbackObtenerPaciente(CARDIOLOGIA, new RuntimeException("timeout"));
+
+        assertTrue(paciente.isEmpty());
+    }
+
     private String pacienteMariaJson() {
         return """
                 {
